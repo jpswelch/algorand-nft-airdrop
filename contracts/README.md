@@ -21,6 +21,8 @@
    $ pip3 install -r requirements.txt
    ```
 6. Run demo
+   ```
    -add your purestake api key
-   -dd your funded account mnemonic
+   -add your funded account mnemonic
    $ python3 main.py
+   ```
