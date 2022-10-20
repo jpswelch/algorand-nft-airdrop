@@ -63,10 +63,10 @@ class RandomPicker(Application):
 
         """
         return Seq(
-            # Assert(
-            #     holdersLength > Int(1),
-            #     comment="Must be greater than 1",
-            # ),
+            Assert(
+                holdersArrayLength.get() > Int(1),
+                comment="Must be greater than 1",
+            ),
             (round := ScratchVar()).store(Global.round() + Int(3)),
             # Set fields for this sender
             self.commitment_round[Txn.sender()].set(round.load()),

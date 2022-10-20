@@ -29,7 +29,7 @@ HOLDERSARRAY = ["0x1", "0x2", "0x3", "0x4"]
 
 
 def demo(app_id: int = 0):
-    purestake_key = 'YESQtd0VR4RK9nF9LzFb3a5DUdmD1db7wnOPTCr6'
+    purestake_key =  # fill in yours here
     endpoint_address = 'https://testnet-algorand.api.purestake.io/ps2'
     purestake_header = {'X-Api-key': purestake_key}
     algod_client = algod.AlgodClient(
