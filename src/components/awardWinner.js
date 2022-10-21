@@ -48,21 +48,23 @@ function AwardWinner() {
           .currencyGreaterThan(0)
           .limit(1)
           .do();
-        totalHolders = [...totalHolders, ...assetInfo.balances];
+        if (assetInfo?.balances[0]?.address !== address) {
+          //don't include creator in holders array
+          totalHolders = [...totalHolders, ...assetInfo.balances];
+        }
         setHolders(totalHolders);
       }
     };
-    if (assets) {
+    if (assets.length) {
       fetchHolders();
     }
   }, [assets]);
 
-  console.log(holders);
   //placeholder until walletconnect
   return (
     <div className="App">
       <button onClick={() => setStart(true)}>fetch</button>
-      {assets.length ? `creator has ${assets.length} holders currently` : ""}
+      {assets.length ? `creator has ${holders.length} holders currently` : ""}
     </div>
   );
 }
