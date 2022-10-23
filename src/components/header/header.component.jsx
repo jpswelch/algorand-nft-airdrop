@@ -103,14 +103,18 @@ class Header extends Component {
             </li>
           </ul>
           <div className="items-center flex-shrink-0 hidden lg:flex">
-            <button
-              className="self-center px-8 py-3 font-semibold rounded dark:bg-violet-400 dark:text-gray-900"
-              onClick={() => {
-                this.state.isLoggedIn ? this.logout() : this.login();
-              }}
-            >
-              {this.state.isLoggedIn ? this.state.address : 'Connect Wallet'}
-            </button>
+            {this.state.isLoggedIn ? (
+              this.state.address.slice(0, 5) +
+              '...' +
+              this.state.address.slice(this.state.address.length - 5)
+            ) : (
+              <button
+                className="self-center px-8 py-3 font-semibold rounded dark:bg-violet-400 dark:text-gray-900"
+                onClick={this.login()}
+              >
+                Connect Wallet
+              </button>
+            )}
           </div>
           <button className="p-4 lg:hidden">
             <svg
