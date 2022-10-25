@@ -1,2 +1,4 @@
+```
 $ yarn
 $ yarn run dev
+```
