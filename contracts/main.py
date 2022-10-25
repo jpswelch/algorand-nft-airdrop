@@ -20,8 +20,8 @@ ACCOUNT_SECRET = to_private_key(ACCOUNT_MNEMONIC)
 ACCOUNT_SIGNER = AccountTransactionSigner(ACCOUNT_SECRET)
 
 # TODO uncomment this if you want to use the currently deployed coin-flipper app on testnet
-#APP_ID = 115057669
-APP_ID = 117283575
+APP_ID = 0
+#APP_ID = 118366249
 
 WAIT_DELAY = 11
 
@@ -29,7 +29,7 @@ HOLDERSARRAY = ["0x1", "0x2", "0x3", "0x4"]
 
 
 def demo(app_id: int = 0):
-    purestake_key =  # fill in yours here
+    purestake_key = "YESQtd0VR4RK9nF9LzFb3a5DUdmD1db7wnOPTCr6"  # fill in yours here
     endpoint_address = 'https://testnet-algorand.api.purestake.io/ps2'
     purestake_header = {'X-Api-key': purestake_key}
     algod_client = algod.AlgodClient(
@@ -44,14 +44,12 @@ def demo(app_id: int = 0):
     if app_id == 0:
         app_id, app_addr, _ = app_client.create()
         print(f"Created app at {app_id} {app_addr}")
-        # app_client.fund(5 * consts.algo)
+        app_client.fund(5 * consts.algo)
         # print("Funded app")
         app_client.opt_in()
         print("Opted in")
     else:
         app_addr = get_application_address(app_id)
-        app_client.opt_in()
-        print("Opted in")
 
     print(f"Current app state:{app_client.get_application_state()}")
 
@@ -69,13 +67,7 @@ def demo(app_id: int = 0):
         print(f"Flipping coin :crossed_fingers:")
         app_client.call(
             RandomPicker.pickWinner,
-            bet_payment=TransactionWithSigner(
-                txn=transaction.PaymentTxn(
-                    ACCOUNT_ADDRESS, sp, app_addr, consts.algo),
-                signer=ACCOUNT_SIGNER,
-            ),
             holdersArrayLength=len(HOLDERSARRAY)
-
         )
     else:
         # We have a bet
@@ -97,8 +89,9 @@ def demo(app_id: int = 0):
     sp = algod_client.suggested_params()
     sp.flat_fee = True
     sp.fee = 2000  # cover this and 1 inner transaction
+    print(ACCOUNT_ADDRESS)
     result = app_client.call(
-        RandomPicker.settle, creator=ACCOUNT_ADDRESS, suggested_params=sp,
+        RandomPicker.settle, creator=ACCOUNT_ADDRESS,
     )
     print(f"Results: {result.return_value}")
 
