@@ -96,16 +96,20 @@ class RandomPicker(Application):
         won = abi.Uint64()
 
         return Seq(
-            # Get the randomness back
-            (randomness := abi.Uint64()).decode(
+            # # Get the randomness back
+            (randomness := abi.DynamicBytes()).decode(
                 self.get_randomness(
                     self.commitment_round[creator.address()])
             ),
-
-            # take the modulo of the random number and the length of the holders array to get a value within the array
-            won.set(randomness.get() % self.holdersArrayLength),
-
-            output.set(won),
+            # # take the modulo of the random number and the length of the holders array to get a value within the array
+            #won.set(randomness.get() % self.holdersArrayLength),
+            won.set(ExtractUint64(randomness.get(), Int(0)) %
+                    self.holdersArrayLength),
+            If(won.get()).Then(
+                output.set(won)
+            ).Else(
+                output.set(0)
+            ),
 
             # Reset state
             self.commitment_round[creator.address()].delete(),

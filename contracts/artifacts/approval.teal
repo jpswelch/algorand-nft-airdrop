@@ -239,32 +239,32 @@ return
 
 // configure
 configure_8:
+store 15
 store 14
 store 13
-store 12
 txn Sender
 callsub authonly_1
 // unauthorized
 assert
-load 13
 load 14
+load 15
 <
 // min bet must be < max bet
 assert
 bytec_2 // "beacon_app_id"
-load 12
+load 13
 app_global_put
 retsub
 
 // get_randomness
 getrandomness_9:
-store 15
+store 16
 intc_0 // 0
 itob
 extract 6 0
 pushbytes 0x // ""
 concat
-store 16
+store 17
 itxn_begin
 pushint 6 // appl
 itxn_field TypeEnum
@@ -273,10 +273,10 @@ app_global_get
 itxn_field ApplicationID
 pushbytes 0x47c20c23 // "must_get(uint64,byte[])byte[]"
 itxn_field ApplicationArgs
-load 15
+load 16
 itob
 itxn_field ApplicationArgs
-load 16
+load 17
 itxn_field ApplicationArgs
 itxn_submit
 itxn LastLog
@@ -321,12 +321,23 @@ txnas Accounts
 bytec_1 // "commitment_round"
 app_local_get
 callsub getrandomness_9
-btoi
+extract 2 0
+intc_0 // 0
+extract_uint64
 txn Sender
 bytec_3 // "holdersArrayLength"
 app_local_get
 %
+store 12
+load 12
+bnz settle_11_l2
+intc_0 // 0
 store 11
+b settle_11_l3
+settle_11_l2:
+load 12
+store 11
+settle_11_l3:
 load 9
 txnas Accounts
 bytec_1 // "commitment_round"

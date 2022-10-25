@@ -11,6 +11,7 @@ import { AwardWinner, type AwardData } from "./awardWinner";
 import WalletSelector from "./WalletSelector";
 import { AppBar, Box, Button, Grid, Toolbar } from "@mui/material";
 import { LoadingButton } from "@mui/lab";
+import { SettleForm } from "./SettleForm";
 
 // AnonClient can still allow reads for an app but no transactions
 // can be signed
@@ -26,7 +27,7 @@ const AnonClient = (client: algosdk.Algodv2, appId: number): RandomPicker => {
 export default function App() {
   // Start with no app id for this demo, since we allow creation
   // Otherwise it'd come in as part of conf
-  const [appId, setAppId] = useState<number>(115885218);
+  const [appId, setAppId] = useState<number>(118384113);
   const [appAddress, setAppAddress] = useState<string>(
     algosdk.getApplicationAddress(appId)
   );
@@ -38,7 +39,7 @@ export default function App() {
   // Init our algod client
   const algodClient = getAlgodClient(apiProvider, network);
 
-  const [betRound, setBetRound] = useState<number>(0);
+  const [round, setround] = useState<number>(0);
   const [optedIn, setOptedIn] = useState<boolean>(false);
 
   const [loading, setLoading] = useState<boolean>(false);
@@ -86,12 +87,12 @@ export default function App() {
 
   // Check for an update bet round
   useEffect(() => {
-    if (!connected()) return setBetRound(0)
-    if (betRound !== 0) return;
-    getBetRound().then((round) => { setBetRound(round) })
+    if (!connected()) return setround(0)
+    if (round !== 0) return;
+    getround().then((round) => { setround(round) })
   }, [accountSettings]);
 
-  async function getBetRound(): Promise<number> {
+  async function getround(): Promise<number> {
     try {
       const acctState = await appClient.getAccountState(account())
       if ("commitment_round" in acctState)
@@ -146,32 +147,32 @@ export default function App() {
     setLoading(true)
     await appClient.closeOut();
     setOptedIn(false)
-    setBetRound(0);
+    setround(0);
     setLoading(false)
   }
 
   async function awardWinner(bfd: AwardData) {
-    console.log(`Award Winner with data: `, bfd);
+    console.log(`Award Winner with data: `, bfd.holdersArrayLength);
 
     try {
       const result = await appClient.pickWinner({
         holdersArrayLength: bfd.holdersArrayLength,
       });
 
-      setBetRound(Number(result.returnValue));
+      setround(Number(result.returnValue));
     } catch (err) {
       console.error(err);
     }
   }
 
-  async function settleBet() {
+  async function settle() {
     console.log("Settling...");
     const feePaySp = await appClient.getSuggestedParams(undefined, 1);
     const result = await appClient.settle(
       { creator: appClient.sender },
       { suggestedParams: feePaySp }
     );
-    setBetRound(0);
+    setround(0);
     const outcome = result.value
     const msg = `${outcome} `
     alert(msg);
@@ -187,11 +188,13 @@ export default function App() {
     <LoadingButton loading={loading} variant="outlined" onClick={optIn}>
       Opt In to app
     </LoadingButton>
-  ) : !betRound ? (
+  ) : !round ? (
     <AwardWinner network={network}
       accountSettings={accountSettings} awardWinner={awardWinner} />
   ) : (
-    "hello"
+    <SettleForm round={round}
+      settle={settle}
+      algodClient={algodClient} />
   );
 
   // The app ui

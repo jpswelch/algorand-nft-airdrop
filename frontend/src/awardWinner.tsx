@@ -32,19 +32,16 @@ export function AwardWinner(props: awardWinnerProps) {
   // console.log(address);
 
   const [loading, setLoading] = useState<boolean>(false);
-
+  const [loadingF, setLoadingF] = useState<boolean>(false);
   async function submit() {
     setLoading(true);
-    if (holders.length) {
-      console.log(holders.length)
-      await props.awardWinner({ holdersArrayLength: holders.length });
-      setLoading(false);
-    }
+    await props.awardWinner({ holdersArrayLength: 2 });
+    setLoading(false);
   }
 
   useEffect(() => {
     const fetchAssets = async () => {
-      setLoading(true)
+      setLoadingF(true)
       let totalRes;
 
       let assetInfo = await indexerClient
@@ -98,7 +95,6 @@ export function AwardWinner(props: awardWinnerProps) {
     }
   }, [address, assets]);
 
-  //placeholder until walletconnect
   return (
     <div className="App">
       {assets.length ? `creator has ${holders.length} holders currently` : "creator has no holders"}
