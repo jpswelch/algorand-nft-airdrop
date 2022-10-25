@@ -7,7 +7,7 @@ const baseServer = "https://mainnet-algorand.api.purestake.io/idx2";
 const port = "";
 
 const token = {
-  "X-API-key": "",
+  "X-API-key": "YESQtd0VR4RK9nF9LzFb3a5DUdmD1db7wnOPTCr6",
 };
 const indexerClient = new algosdk.Indexer(token, baseServer, port);
 
@@ -26,22 +26,25 @@ export function AwardWinner(props: awardWinnerProps) {
 
   const [assets, setAssets] = useState([]);
   const [holders, setHolders] = useState([]);
-
-  let address = accountSettings?.data?.acctList[0]
-  //address = "TIMPJ6P5FZRNNKYJLAYD44XFOSUWEOUAR6NRWJMQR66BRM3QH7UUWEHA24"; //placeholder until wallet connect
+  const [fetch, setFetch] = useState(false);
+  //let address = accountSettings?.data?.acctList[0]
+  let address = "TIMPJ6P5FZRNNKYJLAYD44XFOSUWEOUAR6NRWJMQR66BRM3QH7UUWEHA24"; //placeholder until wallet connect
   // console.log(address);
 
   const [loading, setLoading] = useState<boolean>(false);
 
   async function submit() {
     setLoading(true);
-    console.log(holders.length)
-    await props.awardWinner({ holdersArrayLength: holders.length });
-    setLoading(false);
+    if (holders.length) {
+      console.log(holders.length)
+      await props.awardWinner({ holdersArrayLength: holders.length });
+      setLoading(false);
+    }
   }
 
   useEffect(() => {
     const fetchAssets = async () => {
+      setLoading(true)
       let totalRes;
 
       let assetInfo = await indexerClient
@@ -58,14 +61,17 @@ export function AwardWinner(props: awardWinnerProps) {
       }
       setAssets(totalRes);
     };
-    if (address !== undefined) {
+    if (address !== undefined && fetch) {
+      setFetch(false);
       fetchAssets();
     }
-  }, [address]);
-
+  }, [address, fetch]);
+  const delay = (delayInms) => {
+    return new Promise(resolve => setTimeout(resolve, delayInms));
+  }
   useEffect(() => {
-    let totalHolders = [];
     let count = 0;
+    let totalHolders = [];
     const fetchHolders = async () => {
       for (let i = 0; i < assets.length; i++) {
         let assetInfo = await indexerClient
@@ -73,15 +79,21 @@ export function AwardWinner(props: awardWinnerProps) {
           .currencyGreaterThan(0)
           .limit(1)
           .do();
+        console.log(assetInfo?.balances[0]?.address)
         if (assetInfo?.balances[0]?.address !== address) {
           //don't include creator in holders array
           totalHolders = [...totalHolders, ...assetInfo.balances];
         }
+        totalHolders = [...totalHolders, ...assetInfo.balances];
         count++;
+
+        //avoid rate limiting by spacing out indexer calls a bit
+        await delay(250);
       }
       setHolders(totalHolders);
     };
     if (assets.length && assets.length !== count) {
+      console.log(fetch, assets.length, count)
       fetchHolders();
     }
   }, [address, assets]);
@@ -90,6 +102,7 @@ export function AwardWinner(props: awardWinnerProps) {
   return (
     <div className="App">
       {assets.length ? `creator has ${holders.length} holders currently` : "creator has no holders"}
+      <button onClick={() => setFetch(true)}>Fetch holders</button>
       <button onClick={submit}>Airdrop an exclusive nft?</button>
     </div>
   );
