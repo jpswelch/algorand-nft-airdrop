@@ -21,7 +21,7 @@ ACCOUNT_SIGNER = AccountTransactionSigner(ACCOUNT_SECRET)
 
 # TODO uncomment this if you want to use the currently deployed coin-flipper app on testnet
 #APP_ID = 115057669
-APP_ID = 117283575
+APP_ID = 0
 
 WAIT_DELAY = 11
 
@@ -29,7 +29,7 @@ HOLDERSARRAY = ["0x1", "0x2", "0x3", "0x4"]
 
 
 def demo(app_id: int = 0):
-    purestake_key =  # fill in yours here
+    purestake_key = "YESQtd0VR4RK9nF9LzFb3a5DUdmD1db7wnOPTCr6"  # fill in yours here
     endpoint_address = 'https://testnet-algorand.api.purestake.io/ps2'
     purestake_header = {'X-Api-key': purestake_key}
     algod_client = algod.AlgodClient(
@@ -50,8 +50,6 @@ def demo(app_id: int = 0):
         print("Opted in")
     else:
         app_addr = get_application_address(app_id)
-        app_client.opt_in()
-        print("Opted in")
 
     print(f"Current app state:{app_client.get_application_state()}")
 

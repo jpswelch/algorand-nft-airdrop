@@ -1,0 +1,345 @@
+#pragma version 7
+intcblock 0 1
+bytecblock 0x6177617264735f6f75747374616e64696e67 0x636f6d6d69746d656e745f726f756e64 0x626561636f6e5f6170705f6964 0x686f6c6465727341727261794c656e677468 0x151f7c75
+txn NumAppArgs
+intc_0 // 0
+==
+bnz main_l8
+txna ApplicationArgs 0
+pushbytes 0x352d0f12 // "configure(uint64,uint64,uint64)void"
+==
+bnz main_l7
+txna ApplicationArgs 0
+pushbytes 0xfd97bcbe // "pickWinner(uint64)uint64"
+==
+bnz main_l6
+txna ApplicationArgs 0
+pushbytes 0x5442bd54 // "settle(account,application)uint64"
+==
+bnz main_l5
+err
+main_l5:
+txn OnCompletion
+intc_0 // NoOp
+==
+txn ApplicationID
+intc_0 // 0
+!=
+&&
+assert
+txna ApplicationArgs 1
+intc_0 // 0
+getbyte
+store 6
+txna ApplicationArgs 2
+intc_0 // 0
+getbyte
+store 7
+load 6
+load 7
+callsub settle_11
+store 8
+bytec 4 // 0x151f7c75
+load 8
+itob
+concat
+log
+intc_1 // 1
+return
+main_l6:
+txn OnCompletion
+intc_0 // NoOp
+==
+txn ApplicationID
+intc_0 // 0
+!=
+&&
+assert
+txna ApplicationArgs 1
+btoi
+callsub pickWinner_10
+store 3
+bytec 4 // 0x151f7c75
+load 3
+itob
+concat
+log
+intc_1 // 1
+return
+main_l7:
+txn OnCompletion
+intc_0 // NoOp
+==
+txn ApplicationID
+intc_0 // 0
+!=
+&&
+assert
+txna ApplicationArgs 1
+btoi
+store 0
+txna ApplicationArgs 2
+btoi
+store 1
+txna ApplicationArgs 3
+btoi
+store 2
+load 0
+load 1
+load 2
+callsub configure_8
+intc_1 // 1
+return
+main_l8:
+txn OnCompletion
+intc_0 // NoOp
+==
+bnz main_l18
+txn OnCompletion
+intc_1 // OptIn
+==
+bnz main_l17
+txn OnCompletion
+pushint 2 // CloseOut
+==
+bnz main_l16
+txn OnCompletion
+pushint 4 // UpdateApplication
+==
+bnz main_l15
+txn OnCompletion
+pushint 5 // DeleteApplication
+==
+bnz main_l14
+err
+main_l14:
+txn ApplicationID
+intc_0 // 0
+!=
+assert
+callsub delete_3
+intc_1 // 1
+return
+main_l15:
+txn ApplicationID
+intc_0 // 0
+!=
+assert
+callsub update_5
+intc_1 // 1
+return
+main_l16:
+txn ApplicationID
+intc_0 // 0
+!=
+assert
+callsub closeout_7
+intc_1 // 1
+return
+main_l17:
+txn ApplicationID
+intc_0 // 0
+!=
+assert
+callsub optin_6
+intc_1 // 1
+return
+main_l18:
+txn ApplicationID
+intc_0 // 0
+==
+assert
+callsub create_0
+intc_1 // 1
+return
+
+// create
+create_0:
+bytec_0 // "awards_outstanding"
+intc_0 // 0
+app_global_put
+bytec_2 // "beacon_app_id"
+pushint 110096026 // 110096026
+app_global_put
+retsub
+
+// auth_only
+authonly_1:
+global CreatorAddress
+==
+retsub
+
+// auth_only
+authonly_2:
+global CreatorAddress
+==
+retsub
+
+// delete
+delete_3:
+txn Sender
+callsub authonly_2
+// unauthorized
+assert
+bytec_0 // "awards_outstanding"
+app_global_get
+intc_0 // 0
+==
+assert
+itxn_begin
+intc_1 // pay
+itxn_field TypeEnum
+txn Sender
+itxn_field Receiver
+intc_0 // 0
+itxn_field Amount
+txn Sender
+itxn_field CloseRemainderTo
+itxn_submit
+intc_1 // 1
+return
+
+// auth_only
+authonly_4:
+global CreatorAddress
+==
+retsub
+
+// update
+update_5:
+txn Sender
+callsub authonly_4
+// unauthorized
+assert
+intc_1 // 1
+return
+
+// opt_in
+optin_6:
+intc_1 // 1
+return
+
+// close_out
+closeout_7:
+txn Sender
+bytec_1 // "commitment_round"
+app_local_get
+intc_0 // 0
+>
+bz closeout_7_l2
+bytec_0 // "awards_outstanding"
+bytec_0 // "awards_outstanding"
+app_global_get
+intc_1 // 1
+-
+app_global_put
+closeout_7_l2:
+intc_1 // 1
+return
+
+// configure
+configure_8:
+store 14
+store 13
+store 12
+txn Sender
+callsub authonly_1
+// unauthorized
+assert
+load 13
+load 14
+<
+// min bet must be < max bet
+assert
+bytec_2 // "beacon_app_id"
+load 12
+app_global_put
+retsub
+
+// get_randomness
+getrandomness_9:
+store 15
+intc_0 // 0
+itob
+extract 6 0
+pushbytes 0x // ""
+concat
+store 16
+itxn_begin
+pushint 6 // appl
+itxn_field TypeEnum
+bytec_2 // "beacon_app_id"
+app_global_get
+itxn_field ApplicationID
+pushbytes 0x47c20c23 // "must_get(uint64,byte[])byte[]"
+itxn_field ApplicationArgs
+load 15
+itob
+itxn_field ApplicationArgs
+load 16
+itxn_field ApplicationArgs
+itxn_submit
+itxn LastLog
+extract 4 0
+retsub
+
+// pickWinner
+pickWinner_10:
+store 4
+load 4
+intc_1 // 1
+>
+// Must be greater than 1
+assert
+global Round
+pushint 3 // 3
++
+store 5
+txn Sender
+bytec_1 // "commitment_round"
+load 5
+app_local_put
+txn Sender
+bytec_3 // "holdersArrayLength"
+load 4
+app_local_put
+bytec_0 // "awards_outstanding"
+bytec_0 // "awards_outstanding"
+app_global_get
+intc_1 // 1
++
+app_global_put
+load 5
+retsub
+
+// settle
+settle_11:
+store 10
+store 9
+load 9
+txnas Accounts
+bytec_1 // "commitment_round"
+app_local_get
+callsub getrandomness_9
+btoi
+txn Sender
+bytec_3 // "holdersArrayLength"
+app_local_get
+%
+store 11
+load 9
+txnas Accounts
+bytec_1 // "commitment_round"
+app_local_del
+load 9
+txnas Accounts
+bytec_3 // "holdersArrayLength"
+app_local_del
+bytec_0 // "awards_outstanding"
+bytec_0 // "awards_outstanding"
+app_global_get
+intc_1 // 1
+-
+app_global_put
+load 11
+retsub
