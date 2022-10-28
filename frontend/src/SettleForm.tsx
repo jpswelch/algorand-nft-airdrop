@@ -1,16 +1,12 @@
 import React from "react";
-import algosdk from 'algosdk'
-import {
-  Box,
-  LinearProgress,
-} from "@mui/material";
+import algosdk from "algosdk";
+import { Box, LinearProgress } from "@mui/material";
 
-import { LoadingButton } from "@mui/lab"
-import { NftForm } from "./NftForm";
+import { LoadingButton } from "@mui/lab";
 
 export type settleFormProps = {
   round: number;
-  algodClient: algosdk.Algodv2
+  algodClient: algosdk.Algodv2;
   settle(): void;
 };
 
@@ -21,13 +17,13 @@ export function SettleForm(bfp: settleFormProps) {
 
   const { round, algodClient, settle } = bfp;
 
-  const waitRounds = 10
+  const waitRounds = 10;
   const waitRound = round + waitRounds;
 
   React.useEffect(() => {
-    if (currentRound === 0) updateCurrentRound()
-    if (currentRound >= waitRound) setDisabled(false)
-  }, [currentRound])
+    if (currentRound === 0) updateCurrentRound();
+    if (currentRound >= waitRound) setDisabled(false);
+  }, [currentRound]);
 
   async function updateCurrentRound(): Promise<void> {
     const sp = await algodClient.getTransactionParams().do();
@@ -44,7 +40,7 @@ export function SettleForm(bfp: settleFormProps) {
   function normalizeValue(rnd: number): number {
     if (rnd >= waitRound) return 100;
     if (rnd === 0) return 0;
-    return 100 - ((waitRound - rnd) * waitRounds)
+    return 100 - (waitRound - rnd) * waitRounds;
   }
 
   async function submit() {
@@ -55,19 +51,24 @@ export function SettleForm(bfp: settleFormProps) {
 
   return (
     <div>
-      <h3>Waiting for round {waitRound} (current round {currentRound})</h3>
+      <h3>
+        Waiting for round {waitRound} (current round {currentRound})
+      </h3>
       <Box>
-        <LinearProgress variant='determinate' value={normalizeValue(currentRound)}></LinearProgress>
+        <LinearProgress
+          variant="determinate"
+          value={normalizeValue(currentRound)}
+        ></LinearProgress>
       </Box>
       <Box marginTop="10px">
-        <LoadingButton variant="outlined" onClick={submit} disabled={disabled} loading={loading}>
+        <LoadingButton
+          variant="outlined"
+          onClick={submit}
+          disabled={disabled}
+          loading={loading}
+        >
           Settle
         </LoadingButton>
-      </Box>
-
-      <Box>
-        In the meantime fill out your NFT data to mint when a winner is chosen
-      <NftForm/>
       </Box>
     </div>
   );

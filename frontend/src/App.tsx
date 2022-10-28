@@ -12,6 +12,7 @@ import WalletSelector from "./WalletSelector";
 import { AppBar, Box, Button, Grid, Toolbar } from "@mui/material";
 import { LoadingButton } from "@mui/lab";
 import { SettleForm } from "./SettleForm";
+import { NftForm } from "./NftForm";
 
 // AnonClient can still allow reads for an app but no transactions
 // can be signed
@@ -43,6 +44,9 @@ export default function App() {
   const [optedIn, setOptedIn] = useState<boolean>(false);
 
   const [loading, setLoading] = useState<boolean>(false);
+  const [holdersArray, setHoldersArray] = useState<string[]>([]);
+
+  const [winner, setWinner] = useState<string>("");
 
   // Set up user wallet from session
   const [accountSettings, setAccountSettings] = useState<SessionWalletData>(
@@ -154,14 +158,15 @@ export default function App() {
   }
 
   async function awardWinner(bfd: AwardData) {
-    console.log(`Award Winner with data: `, bfd.holdersArrayLength);
+    console.log(`Award Winner with data: `, bfd.holders);
 
     try {
       const result = await appClient.pickWinner({
-        holdersArrayLength: bfd.holdersArrayLength,
+        holdersArrayLength: bfd.holders.length,
       });
 
       setround(Number(result.returnValue));
+      setHoldersArray(bfd.holders);
     } catch (err) {
       console.error(err);
     }
@@ -175,8 +180,10 @@ export default function App() {
       { suggestedParams: feePaySp }
     );
     setround(0);
-    const outcome = result.value;
+    const outcome: number = result.value;
+    setWinner(holdersArray[outcome]);
     const msg = `${outcome} `;
+    console.log(holdersArray, winner);
     alert(msg);
   }
 
@@ -198,7 +205,7 @@ export default function App() {
   ) : (
     <SettleForm round={round} settle={settle} algodClient={algodClient} />
   );
-
+  console.log();
   // The app ui
   return (
     <div className="App">
@@ -227,9 +234,21 @@ export default function App() {
         spacing={6}
         margin="10px"
       >
-        <Grid item lg>
-          <Box>{action}</Box>
-        </Grid>
+        {winner ? (
+          <Grid item lg>
+            <Box>
+              <NftForm
+                algodClient={algodClient}
+                winner={winner}
+                creator={appClient.sender}
+              />
+            </Box>
+          </Grid>
+        ) : (
+          <Grid item lg>
+            <Box>{action}</Box>
+          </Grid>
+        )}
 
         <Grid item lg>
           <LoadingButton color="warning" loading={loading} onClick={closeOut}>

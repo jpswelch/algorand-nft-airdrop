@@ -3,7 +3,7 @@ import algosdk from "algosdk";
 import { useState, useEffect } from "react";
 import { Button, Grid } from "@mui/material";
 import { LoadingButton } from "@mui/lab";
-const baseServer = "https://mainnet-algorand.api.purestake.io/idx2";
+const baseServer = "https://testnet-algorand.api.purestake.io/idx2";
 const port = "";
 
 const token = {
@@ -12,7 +12,7 @@ const token = {
 const indexerClient = new algosdk.Indexer(token, baseServer, port);
 
 export type AwardData = {
-  holdersArrayLength: bigint;
+  holders: Array;
 };
 type awardWinnerProps = {
   network: string;
@@ -26,16 +26,16 @@ export function AwardWinner(props: awardWinnerProps) {
   const [assets, setAssets] = useState([]);
   const [holders, setHolders] = useState([]);
   const [fetch, setFetch] = useState(false);
-  //let address = accountSettings?.data?.acctList[0]
-  let address = "TIMPJ6P5FZRNNKYJLAYD44XFOSUWEOUAR6NRWJMQR66BRM3QH7UUWEHA24"; //placeholder until wallet connect
+  let address = accountSettings?.data?.acctList[0];
+  //let address = "TIMPJ6P5FZRNNKYJLAYD44XFOSUWEOUAR6NRWJMQR66BRM3QH7UUWEHA24"; //placeholder until wallet connect
   // console.log(address);
 
   const [loading, setLoading] = useState<boolean>(false);
   const [loadingF, setLoadingF] = useState<boolean>(false);
   async function submit() {
     setLoading(true);
+    await props.awardWinner({ holders: holders });
 
-    //await props.awardWinner({ holdersArrayLength: holders.length });
     setLoading(false);
   }
 

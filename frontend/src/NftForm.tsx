@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import algosdk from "algosdk";
 import {
   Button,
   FormControl,
@@ -9,25 +10,36 @@ import {
 
 import { airdropNFT } from "./actions/NftCreateActions";
 
-export const NftForm = () => {
+export type NftFormProps = {
+  algodClient: algosdk.Algodv2;
+  winner: string;
+  creator: string;
+};
+
+export const NftForm = (props: NftFormProps) => {
   const [photo, setPhotoData] = useState<any>();
   const [title, setTitle] = useState<string>("");
   const [description, setDescription] = useState<string>("");
 
   let handleSubmit = async (e) => {
     e.preventDefault();
-    console.log(title, description, photo);
-    const account = "";
-    let success = await airdropNFT(title, description, photo, account);
-    // if (success) {
-    //   alert("Minting is complete!");
-    // } else {
-    //   alert("Minting failed! You have already created your NFT for this week!");
-    // }
+    let txn = await airdropNFT(
+      props.creator,
+      title,
+      description,
+      photo,
+      props.algodClient,
+      props.winner
+    );
+    if (txn) {
+      alert("Minting is complete!");
+    } else {
+      alert("Minting failed!");
+    }
   };
   return (
-    <div className="RecipeUpload center">
-      <h1>Upload your recipe here!</h1>
+    <div>
+      <h1>Build your award NFT </h1>
       <FormControl>
         <InputLabel>Title</InputLabel>
         <Input
