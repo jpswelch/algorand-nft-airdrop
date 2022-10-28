@@ -6,6 +6,7 @@ import {
 } from "@mui/material";
 
 import { LoadingButton } from "@mui/lab"
+import { NftForm } from "./NftForm";
 
 export type settleFormProps = {
   round: number;
@@ -62,6 +63,11 @@ export function SettleForm(bfp: settleFormProps) {
         <LoadingButton variant="outlined" onClick={submit} disabled={disabled} loading={loading}>
           Settle
         </LoadingButton>
+      </Box>
+
+      <Box>
+        In the meantime fill out your NFT data to mint when a winner is chosen
+      <NftForm/>
       </Box>
     </div>
   );

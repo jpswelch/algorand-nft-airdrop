@@ -71,6 +71,7 @@ export default function WalletSelector(props: WalletSelectorProps) {
     setAccountSettings(SessionWalletManager.read(network));
     setLoading(false)
   }
+  console.log(accountSettings?.data?.acctList?.length)
 
   const display = !accountSettings.data.acctList.length ? (
     <LoadingButton

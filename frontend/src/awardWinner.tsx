@@ -2,7 +2,7 @@
 // @ts-nocheck
 import algosdk from "algosdk";
 import { useState, useEffect } from "react";
-
+import {Button} from "@mui/material"
 const baseServer = "https://mainnet-algorand.api.purestake.io/idx2";
 const port = "";
 
@@ -35,7 +35,9 @@ export function AwardWinner(props: awardWinnerProps) {
   const [loadingF, setLoadingF] = useState<boolean>(false);
   async function submit() {
     setLoading(true);
-    await props.awardWinner({ holdersArrayLength: 2 });
+    
+
+    //await props.awardWinner({ holdersArrayLength: holders.length });
     setLoading(false);
   }
 
@@ -76,7 +78,6 @@ export function AwardWinner(props: awardWinnerProps) {
           .currencyGreaterThan(0)
           .limit(1)
           .do();
-        console.log(assetInfo?.balances[0]?.address)
         if (assetInfo?.balances[0]?.address !== address) {
           //don't include creator in holders array
           totalHolders = [...totalHolders, ...assetInfo.balances];
@@ -97,9 +98,10 @@ export function AwardWinner(props: awardWinnerProps) {
 
   return (
     <div className="App">
-      {assets.length ? `creator has ${holders.length} holders currently` : "creator has no holders"}
-      <button onClick={() => setFetch(true)}>Fetch holders</button>
-      <button onClick={submit}>Airdrop an exclusive nft?</button>
+      {assets.length ? `You have ${holders.length} holders currently` : "You have no holders :("}
+      <Button onClick={() => setFetch(true)}>Fetch your holders</Button>
+      <Button onClick={submit}>Airdrop an exclusive nft?</Button>
+
     </div>
   );
 }

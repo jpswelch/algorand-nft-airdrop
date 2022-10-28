@@ -8,32 +8,17 @@ export const NftForm = () => {
   const [photo, setPhotoData] = useState<any>();
   const [title, setTitle] = useState<string>("");
   const [description, setDescription] = useState<string>("");
-//   let handleChange = (i, e) => {
-//     let newIngredientsArray = [...IngredientsArray];
-//     newIngredientsArray[i][e.target.name] = e.target.value;
-//     setIngredientsArray(newIngredientsArray);
-//   };
-
-//   let addNewIngredient = () => {
-//     setIngredientsArray([...IngredientsArray, { name: "", quantity: "" }]);
-//   };
-
-//   let removeIngredient = (i) => {
-//     let newIngredientsArray = [...IngredientsArray];
-//     newIngredientsArray.splice(i, 1);
-//     setIngredientsArray(newIngredientsArray);
-//   };
 
   let handleSubmit = async (e) => {
     e.preventDefault();
-   // console.log(title,description,photo)
-    // const account = accounts[0];
-    // let success = await mintRecipeNFT(
-    //   title,
-    //   description,
-    //   photo,
-    //   account
-    // );
+   console.log(title,description,photo)
+    const account = accounts[0];
+    let success = await mintRecipeNFT(
+      title,
+      description,
+      photo,
+      account
+    );
     // if (success) {
     //   alert("Minting is complete!");
     // } else {
