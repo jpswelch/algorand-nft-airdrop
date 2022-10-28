@@ -64,7 +64,7 @@ export default function App() {
       SessionWalletManager.connected(network) &&
       SessionWalletManager.address(network) !== appClient.sender
     ) {
-      console.log(SessionWalletManager.signer(network))
+      console.log(SessionWalletManager.signer(network));
       setAppClient(
         new RandomPicker({
           client: algodClient,
@@ -77,54 +77,56 @@ export default function App() {
   }, [accountSettings, appId, algodClient]);
 
   function connected(): boolean {
-    return accountSettings.data.acctList.length > 0
+    return accountSettings.data.acctList.length > 0;
   }
 
   function account(): string {
-    return connected() ? SessionWalletManager.address(network) : ""
+    return connected() ? SessionWalletManager.address(network) : "";
   }
-
 
   // Check for an update bet round
   useEffect(() => {
-    if (!connected()) return setround(0)
+    if (!connected()) return setround(0);
     if (round !== 0) return;
-    getround().then((round) => { setround(round) })
+    getround().then((round) => {
+      setround(round);
+    });
   }, [accountSettings]);
 
   async function getround(): Promise<number> {
     try {
-      const acctState = await appClient.getAccountState(account())
+      const acctState = await appClient.getAccountState(account());
       if ("commitment_round" in acctState)
         return acctState["commitment_round"] as number;
-    } catch (err) { }
+    } catch (err) {}
     return 0;
   }
 
   // Check for an update opted in status
   useEffect(() => {
-    const addr = account()
+    const addr = account();
     if (addr === "") return setOptedIn(false);
 
     algodClient
       .accountApplicationInformation(addr, appId)
       .do()
       .then((data) => {
-        setOptedIn('app-local-state' in data)
+        setOptedIn("app-local-state" in data);
       })
-      .catch((err) => { setOptedIn(false); });
-
+      .catch((err) => {
+        setOptedIn(false);
+      });
   }, [accountSettings]);
 
   // Deploy the app on chain
   async function createApp() {
-    setLoading(true)
+    setLoading(true);
     const { appId, appAddress } = await appClient.create();
     setAppId(appId);
     setAppAddress(appAddress);
 
     console.log(`Created app: ${appId}`);
-    setLoading(false)
+    setLoading(false);
   }
 
   // Opt account into app
@@ -136,19 +138,19 @@ export default function App() {
   }
 
   async function updateApp() {
-    await appClient.update()
+    await appClient.update();
   }
   async function deleteApp() {
-    await appClient.delete()
+    await appClient.delete();
   }
 
   async function closeOut() {
     console.log("OptingOut...");
-    setLoading(true)
+    setLoading(true);
     await appClient.closeOut();
-    setOptedIn(false)
+    setOptedIn(false);
     setround(0);
-    setLoading(false)
+    setLoading(false);
   }
 
   async function awardWinner(bfd: AwardData) {
@@ -173,11 +175,10 @@ export default function App() {
       { suggestedParams: feePaySp }
     );
     setround(0);
-    const outcome = result.value
-    const msg = `${outcome} `
+    const outcome = result.value;
+    const msg = `${outcome} `;
     alert(msg);
   }
-
 
   // We allow creation, opt in, bet, settle
   const action = !appId ? (
@@ -189,12 +190,13 @@ export default function App() {
       Opt In to app
     </LoadingButton>
   ) : !round ? (
-    <AwardWinner network={network}
-      accountSettings={accountSettings} awardWinner={awardWinner} />
+    <AwardWinner
+      network={network}
+      accountSettings={accountSettings}
+      awardWinner={awardWinner}
+    />
   ) : (
-    <SettleForm round={round}
-      settle={settle}
-      algodClient={algodClient} />
+    <SettleForm round={round} settle={settle} algodClient={algodClient} />
   );
 
   // The app ui
@@ -234,7 +236,6 @@ export default function App() {
             Opt Out of App
           </LoadingButton>
         </Grid>
-
       </Grid>
     </div>
   );

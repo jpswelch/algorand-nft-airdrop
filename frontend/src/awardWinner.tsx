@@ -1,8 +1,8 @@
-
 // @ts-nocheck
 import algosdk from "algosdk";
 import { useState, useEffect } from "react";
-import {Button} from "@mui/material"
+import { Button, Grid } from "@mui/material";
+import { LoadingButton } from "@mui/lab";
 const baseServer = "https://mainnet-algorand.api.purestake.io/idx2";
 const port = "";
 
@@ -10,7 +10,6 @@ const token = {
   "X-API-key": "YESQtd0VR4RK9nF9LzFb3a5DUdmD1db7wnOPTCr6",
 };
 const indexerClient = new algosdk.Indexer(token, baseServer, port);
-
 
 export type AwardData = {
   holdersArrayLength: bigint;
@@ -35,7 +34,6 @@ export function AwardWinner(props: awardWinnerProps) {
   const [loadingF, setLoadingF] = useState<boolean>(false);
   async function submit() {
     setLoading(true);
-    
 
     //await props.awardWinner({ holdersArrayLength: holders.length });
     setLoading(false);
@@ -43,7 +41,7 @@ export function AwardWinner(props: awardWinnerProps) {
 
   useEffect(() => {
     const fetchAssets = async () => {
-      setLoadingF(true)
+      setLoadingF(true);
       let totalRes;
 
       let assetInfo = await indexerClient
@@ -66,12 +64,13 @@ export function AwardWinner(props: awardWinnerProps) {
     }
   }, [address, fetch]);
   const delay = (delayInms) => {
-    return new Promise(resolve => setTimeout(resolve, delayInms));
-  }
+    return new Promise((resolve) => setTimeout(resolve, delayInms));
+  };
   useEffect(() => {
     let count = 0;
     let totalHolders = [];
     const fetchHolders = async () => {
+      console.log(count);
       for (let i = 0; i < assets.length; i++) {
         let assetInfo = await indexerClient
           .lookupAssetBalances(assets[i].index)
@@ -88,20 +87,39 @@ export function AwardWinner(props: awardWinnerProps) {
         //avoid rate limiting by spacing out indexer calls a bit
         await delay(250);
       }
+      setLoadingF(false);
       setHolders(totalHolders);
     };
     if (assets.length && assets.length !== count) {
-      console.log(fetch, assets.length, count)
+      console.log(fetch, assets.length, count);
       fetchHolders();
     }
   }, [address, assets]);
 
   return (
     <div className="App">
-      {assets.length ? `You have ${holders.length} holders currently` : "You have no holders :("}
-      <Button onClick={() => setFetch(true)}>Fetch your holders</Button>
-      <Button onClick={submit}>Airdrop an exclusive nft?</Button>
-
+      <Grid>
+        <Grid item lg>
+          {holders.length && !loadingF ? (
+            <Grid item lg>
+              You have {holders.length} holders currently
+            </Grid>
+          ) : (
+            <LoadingButton
+              variant="contained"
+              loading={loadingF}
+              onClick={() => setFetch(true)}
+            >
+              Fetch Holders
+            </LoadingButton>
+          )}
+        </Grid>
+        <Grid item lg>
+          <Button variant="contained" onClick={submit}>
+            Airdrop
+          </Button>
+        </Grid>
+      </Grid>
     </div>
   );
 }

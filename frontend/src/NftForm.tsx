@@ -1,24 +1,24 @@
 import React, { useState } from "react";
-import {Button,FormControl,InputLabel,Input, FormHelperText } from "@mui/material"
+import {
+  Button,
+  FormControl,
+  InputLabel,
+  Input,
+  FormHelperText,
+} from "@mui/material";
 
 import { airdropNFT } from "./actions/NftCreateActions";
 
 export const NftForm = () => {
-
   const [photo, setPhotoData] = useState<any>();
   const [title, setTitle] = useState<string>("");
   const [description, setDescription] = useState<string>("");
 
   let handleSubmit = async (e) => {
     e.preventDefault();
-    console.log(title,description,photo)
-    const account = ""
-    let success = await airdropNFT(
-      title,
-      description,
-      photo,
-      account
-    );
+    console.log(title, description, photo);
+    const account = "";
+    let success = await airdropNFT(title, description, photo, account);
     // if (success) {
     //   alert("Minting is complete!");
     // } else {
@@ -28,29 +28,34 @@ export const NftForm = () => {
   return (
     <div className="RecipeUpload center">
       <h1>Upload your recipe here!</h1>
-            <FormControl>
-                <InputLabel >Title</InputLabel>
-                <Input id="title" value={title} onChange={(e) => setTitle(e.target.value)}/>
-                <FormControl/>
-                <FormControl>
+      <FormControl>
+        <InputLabel>Title</InputLabel>
+        <Input
+          id="title"
+          value={title}
+          onChange={(e) => setTitle(e.target.value)}
+        />
+        <FormControl />
+        <FormControl>
+          <InputLabel>Description</InputLabel>
+          <Input
+            id="description"
+            value={description}
+            onChange={(e) => setDescription(e.target.value)}
+          />
+        </FormControl>
+        <FormControl>
+          <Input
+            type="file"
+            onChange={(e) => setPhotoData(e.target.files[0])}
+            hidden
+          />
+        </FormControl>
+      </FormControl>
 
-                <InputLabel >Description</InputLabel>
-                <Input id="description" value={description} onChange={(e) => setDescription(e.target.value)}/>
-                </FormControl>
-                <FormControl>
-                <Input
-                    type="file"
-                    onChange={(e) => setPhotoData(e.target.files[0])}
-                    hidden
-                />
-                </FormControl>
-            </FormControl>    
-       
-        <div>
-          <Button onClick={handleSubmit}>
-            Submit
-          </Button>
-        </div>
+      <div>
+        <Button onClick={handleSubmit}>Submit</Button>
+      </div>
     </div>
   );
 };
