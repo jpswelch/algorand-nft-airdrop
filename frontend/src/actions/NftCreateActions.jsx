@@ -1,4 +1,4 @@
-const { create } = require("ipfs-http-client");
+import { create } from "ipfs-http-client";
 const ipfs = create("https://ipfs.infura.io:5001");
 
 export const airdropNFT = async (

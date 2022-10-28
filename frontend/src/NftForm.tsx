@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import {Button,FormControl,InputLabel,Input, FormHelperText } from "@mui/material"
 
-// import { mintRecipeNFT } from "../actions/RecipeUploadActions";
+import { airdropNFT } from "./actions/NftCreateActions";
 
 export const NftForm = () => {
 
@@ -11,9 +11,9 @@ export const NftForm = () => {
 
   let handleSubmit = async (e) => {
     e.preventDefault();
-   console.log(title,description,photo)
-    const account = accounts[0];
-    let success = await mintRecipeNFT(
+    console.log(title,description,photo)
+    const account = ""
+    let success = await airdropNFT(
       title,
       description,
       photo,
