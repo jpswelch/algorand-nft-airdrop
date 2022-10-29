@@ -1,13 +1,14 @@
 // @ts-nocheck
-import algosdk from "algosdk";
-import { useState, useEffect } from "react";
-import { Button, Grid } from "@mui/material";
-import { LoadingButton } from "@mui/lab";
-const baseServer = "https://testnet-algorand.api.purestake.io/idx2";
-const port = "";
+import algosdk from 'algosdk';
+import { useState, useEffect } from 'react';
+import { Button, Grid } from '@mui/material';
+import { LoadingButton } from '@mui/lab';
+const baseServer = import.meta.env.VITE_NETWORK_API;
+
+const port = '';
 
 const token = {
-  "X-API-key": "YESQtd0VR4RK9nF9LzFb3a5DUdmD1db7wnOPTCr6",
+  'X-API-key': 'YESQtd0VR4RK9nF9LzFb3a5DUdmD1db7wnOPTCr6',
 };
 const indexerClient = new algosdk.Indexer(token, baseServer, port);
 
@@ -49,10 +50,10 @@ export function AwardWinner(props: awardWinnerProps) {
         .do();
 
       totalRes = [...assetInfo.assets];
-      while ("next-token" in assetInfo) {
+      while ('next-token' in assetInfo) {
         assetInfo = await indexerClient
           .lookupAccountCreatedAssets(address)
-          .nextToken(assetInfo["next-token"])
+          .nextToken(assetInfo['next-token'])
           .do();
         totalRes = [...totalRes, ...assetInfo.assets];
       }
