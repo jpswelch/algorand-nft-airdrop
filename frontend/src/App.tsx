@@ -7,6 +7,7 @@ import {
   SessionWalletData,
 } from "beaker-ts/lib/web";
 import { RandomPicker } from "./randompicker_client";
+import { CreatorView, type creatorViewAward } from "./CreatorView";
 import { AwardWinner, type AwardData } from "./awardWinner";
 import WalletSelector from "./WalletSelector";
 import {
@@ -222,11 +223,6 @@ export default function App() {
       <Typography> Creator</Typography>
     </Stack>
   ) : (
-    // <AwardWinner
-    //   network={network}
-    //   accountSettings={accountSettings}
-    //   awardWinner={awardWinner}
-    // />
     <SettleForm round={round} settle={settle} algodClient={algodClient} />
   );
   console.log(isCreator);
@@ -259,33 +255,20 @@ export default function App() {
         spacing={6}
         margin="10px"
       >
-        {winner ? (
-          <Grid item lg>
-            <Box>
-              <NftForm
+        <Grid item lg>
+          <Box>{action}</Box>
+          <Box>
+            {isCreator ? (
+              <CreatorView
                 algodClient={algodClient}
-                winner={winner}
-                creator={appClient.sender}
+                network={network}
+                accountSettings={accountSettings}
               />
-            </Box>
-          </Grid>
-        ) : (
-          <Grid item lg>
-            <Box>{action}</Box>
-            <Box>
-              {isCreator ? (
-                <AwardWinner
-                  network={network}
-                  accountSettings={accountSettings}
-                  awardWinner={awardWinner}
-                />
-              ) : (
-                ""
-              )}
-            </Box>
-          </Grid>
-        )}
-
+            ) : (
+              ""
+            )}
+          </Box>
+        </Grid>
         <Grid item lg>
           <LoadingButton color="warning" loading={loading} onClick={closeOut}>
             Opt Out of App
