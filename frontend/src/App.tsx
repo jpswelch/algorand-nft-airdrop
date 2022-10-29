@@ -1,18 +1,29 @@
-import algosdk from 'algosdk';
-import { useState, useEffect } from 'react';
-import { Network, APIProvider, getAlgodClient } from 'beaker-ts/lib/clients';
+import algosdk from "algosdk";
+import { useState, useEffect } from "react";
+import { Network, APIProvider, getAlgodClient } from "beaker-ts/lib/clients";
 import {
   PlaceHolderSigner,
   SessionWalletManager,
   SessionWalletData,
-} from 'beaker-ts/lib/web';
-import { RandomPicker } from './randompicker_client';
-import { AwardWinner, type AwardData } from './awardWinner';
-import WalletSelector from './WalletSelector';
-import { AppBar, Box, Button, Grid, Toolbar } from '@mui/material';
-import { LoadingButton } from '@mui/lab';
-import { SettleForm } from './SettleForm';
-import { NftForm } from './NftForm';
+} from "beaker-ts/lib/web";
+import { RandomPicker } from "./randompicker_client";
+import { AwardWinner, type AwardData } from "./awardWinner";
+import WalletSelector from "./WalletSelector";
+import {
+  AppBar,
+  Box,
+  Button,
+  FormControlLabel,
+  FormGroup,
+  Grid,
+  Stack,
+  Switch,
+  Toolbar,
+  Typography,
+} from "@mui/material";
+import { LoadingButton } from "@mui/lab";
+import { SettleForm } from "./SettleForm";
+import { NftForm } from "./NftForm";
 // import ShuffleIcon from '@mui/icons-material/Shuffle';
 
 // AnonClient can still allow reads for an app but no transactions
@@ -21,7 +32,7 @@ const AnonClient = (client: algosdk.Algodv2, appId: number): RandomPicker => {
   return new RandomPicker({
     client: client,
     signer: PlaceHolderSigner,
-    sender: '',
+    sender: "",
     appId: appId,
   });
 };
@@ -33,6 +44,13 @@ export default function App() {
   const [appAddress, setAppAddress] = useState<string>(
     algosdk.getApplicationAddress(appId)
   );
+
+  const [isCreator, setIsCreator] = useState<boolean>(true);
+
+  const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    console.log(event.target);
+    setIsCreator(event.target.checked);
+  };
 
   // Setup config for client/network.
   const [apiProvider, setApiProvider] = useState(APIProvider.AlgoNode);
@@ -47,7 +65,7 @@ export default function App() {
   const [loading, setLoading] = useState<boolean>(false);
   const [holdersArray, setHoldersArray] = useState<string[]>([]);
 
-  const [winner, setWinner] = useState<string>('');
+  const [winner, setWinner] = useState<string>("");
 
   // Set up user wallet from session
   const [accountSettings, setAccountSettings] = useState<SessionWalletData>(
@@ -63,7 +81,7 @@ export default function App() {
   // update our app client
   useEffect(() => {
     // Bad way to track connected status but...
-    if (accountSettings.data.acctList.length == 0 && appClient.sender !== '') {
+    if (accountSettings.data.acctList.length == 0 && appClient.sender !== "") {
       setAppClient(AnonClient(algodClient, appId));
     } else if (
       SessionWalletManager.connected(network) &&
@@ -86,7 +104,7 @@ export default function App() {
   }
 
   function account(): string {
-    return connected() ? SessionWalletManager.address(network) : '';
+    return connected() ? SessionWalletManager.address(network) : "";
   }
 
   // Check for an update bet round
@@ -101,8 +119,8 @@ export default function App() {
   async function getround(): Promise<number> {
     try {
       const acctState = await appClient.getAccountState(account());
-      if ('commitment_round' in acctState)
-        return acctState['commitment_round'] as number;
+      if ("commitment_round" in acctState)
+        return acctState["commitment_round"] as number;
     } catch (err) {}
     return 0;
   }
@@ -110,13 +128,13 @@ export default function App() {
   // Check for an update opted in status
   useEffect(() => {
     const addr = account();
-    if (addr === '') return setOptedIn(false);
+    if (addr === "") return setOptedIn(false);
 
     algodClient
       .accountApplicationInformation(addr, appId)
       .do()
       .then((data) => {
-        setOptedIn('app-local-state' in data);
+        setOptedIn("app-local-state" in data);
       })
       .catch((err) => {
         setOptedIn(false);
@@ -150,7 +168,7 @@ export default function App() {
   }
 
   async function closeOut() {
-    console.log('OptingOut...');
+    console.log("OptingOut...");
     setLoading(true);
     await appClient.closeOut();
     setOptedIn(false);
@@ -174,7 +192,7 @@ export default function App() {
   }
 
   async function settle() {
-    console.log('Settling...');
+    console.log("Settling...");
     const feePaySp = await appClient.getSuggestedParams(undefined, 1);
     const result = await appClient.settle(
       { creator: appClient.sender },
@@ -198,15 +216,20 @@ export default function App() {
       Opt In to app
     </LoadingButton>
   ) : !round ? (
-    <AwardWinner
-      network={network}
-      accountSettings={accountSettings}
-      awardWinner={awardWinner}
-    />
+    <Stack direction="row" spacing={1} alignItems="center">
+      <Typography>Supporter</Typography>
+      <Switch onChange={handleChange} checked={isCreator} />
+      <Typography> Creator</Typography>
+    </Stack>
   ) : (
+    // <AwardWinner
+    //   network={network}
+    //   accountSettings={accountSettings}
+    //   awardWinner={awardWinner}
+    // />
     <SettleForm round={round} settle={settle} algodClient={algodClient} />
   );
-  console.log();
+  console.log(isCreator);
   // The app ui
   return (
     <div className="App">
@@ -249,6 +272,17 @@ export default function App() {
         ) : (
           <Grid item lg>
             <Box>{action}</Box>
+            <Box>
+              {isCreator ? (
+                <AwardWinner
+                  network={network}
+                  accountSettings={accountSettings}
+                  awardWinner={awardWinner}
+                />
+              ) : (
+                ""
+              )}
+            </Box>
           </Grid>
         )}
 
