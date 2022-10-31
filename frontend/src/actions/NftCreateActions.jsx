@@ -1,15 +1,16 @@
-import { create as ipfsClient } from 'ipfs-http-client';
-import algosdk from 'algosdk';
-
+/* global AlgoSigner */
+import { create as ipfsClient } from "ipfs-http-client";
+import algosdk from "algosdk";
+import { waitForAlgosignerConfirmation } from "../utils/algosignerUtils";
 const projectId = import.meta.env.VITE_INFURA_PROJECT_ID; //put infura id
 const projectSecret = import.meta.env.VITE_INFURA_API_KEY_SECRET; //put infura secret
 
 const auth =
-  'Basic ' + Buffer.from(projectId + ':' + projectSecret).toString('base64');
+  "Basic " + Buffer.from(projectId + ":" + projectSecret).toString("base64");
 const client = ipfsClient({
-  host: 'ipfs.infura.io',
+  host: "ipfs.infura.io",
   port: 5001,
-  protocol: 'https',
+  protocol: "https",
   headers: {
     authorization: auth,
   },
@@ -19,17 +20,17 @@ export const airdropNFT = async (
   name,
   description,
   image,
-  algodClient,
-  winner
+  algodClient
 ) => {
   try {
     const gateway = await ipfsUpload(name, description, image);
+    // const tokenURI = "https://test.com";
     const tokenURI = gateway;
-    console.log('GATEWAY', gateway);
-    let txn = await createAsset(creator, name, tokenURI, algodClient, winner);
+    let txn = await createAsset(creator, name, tokenURI, algodClient);
 
     return txn;
   } catch (e) {
+    console.log(creator, name, description, image, algodClient);
     console.log(e);
     return false;
   }
@@ -38,7 +39,7 @@ export const airdropNFT = async (
 export const ipfsUpload = async (name, description, image) => {
   let imagePath = await ipfsImageUpload(image);
   const files = {
-    path: '/',
+    path: "/",
     content: JSON.stringify({
       name: name,
       image: imagePath,
@@ -56,7 +57,7 @@ export const ipfsImageUpload = async (image) => {
   return imagePath;
 };
 
-export const createAsset = async (creator, name, ipfs, algodClient, winner) => {
+export const createAsset = async (creator, name, ipfs, algodClient) => {
   console.log(creator);
   let params = await algodClient.getTransactionParams().do();
   // comment out the next two lines to use suggested fee
@@ -81,7 +82,7 @@ export const createAsset = async (creator, name, ipfs, algodClient, winner) => {
   // Optional string pointing to a URL relating to the asset
   let assetURL = ipfs;
   // Optional hash commitment of some sort relating to the asset. 32 character length.
-  let assetMetadataHash = '16efaa3924a6fd9d3a4824799a4ac65d';
+  let assetMetadataHash = "16efaa3924a6fd9d3a4824799a4ac65d";
   // The following parameters are the only ones
   // that can be changed, and they have to be changed
   // by the current manager
@@ -113,17 +114,24 @@ export const createAsset = async (creator, name, ipfs, algodClient, winner) => {
     assetMetadataHash,
     params
   );
-  let rawSignedTxn = txn.signTxn(); //TODO how to use connected wallet for this?
-  let tx = await algodClient.sendRawTransaction(rawSignedTxn).do();
+
+  let txn_b64 = AlgoSigner.encoding.msgpackToBase64(txn.toByte());
+  let rawSignedTxn = await AlgoSigner.signTxn([{ txn: txn_b64 }]);
+  let binarySignedTx = AlgoSigner.encoding.base64ToMsgpack(
+    rawSignedTxn[0].blob
+  );
+
+  let tx = await algodClient.sendRawTransaction(binarySignedTx).do();
+  console.log("here", binarySignedTx);
 
   let assetID = null;
-  // wait for transaction to be confirmed
+
   const ptx = await algosdk.waitForConfirmation(algodClient, tx.txId, 4);
   // Get the new asset's information from the creator account
-  assetID = ptx['asset-index'];
+  assetID = ptx["asset-index"];
   //Get the completed Transaction
   let compTxn =
-    'Transaction ' + tx.txId + ' confirmed in round ' + ptx['confirmed-round'];
+    "Transaction " + tx.txId + " confirmed in round " + ptx["confirmed-round"];
   console.log(compTxn);
   return compTxn;
 };
