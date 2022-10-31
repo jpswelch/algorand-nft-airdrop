@@ -1,15 +1,15 @@
-import algosdk from "algosdk";
-import { useState, useEffect } from "react";
-import { Network, APIProvider, getAlgodClient } from "beaker-ts/lib/clients";
+import algosdk from 'algosdk';
+import { useState, useEffect } from 'react';
+import { Network, APIProvider, getAlgodClient } from 'beaker-ts/lib/clients';
 import {
   PlaceHolderSigner,
   SessionWalletManager,
   SessionWalletData,
-} from "beaker-ts/lib/web";
-import { RandomPicker } from "./randompicker_client";
-import { CreatorView, type creatorViewAward } from "./CreatorView";
-import { AwardWinner, type AwardData } from "./awardWinner";
-import WalletSelector from "./WalletSelector";
+} from 'beaker-ts/lib/web';
+import { RandomPicker } from './randompicker_client';
+import { CreatorView, type creatorViewAward } from './CreatorView';
+import { AwardWinner, type AwardData } from './awardWinner';
+import WalletSelector from './WalletSelector';
 import {
   AppBar,
   Box,
@@ -21,10 +21,65 @@ import {
   Switch,
   Toolbar,
   Typography,
-} from "@mui/material";
-import { LoadingButton } from "@mui/lab";
-import { SettleForm } from "./SettleForm";
-import { NftForm } from "./NftForm";
+} from '@mui/material';
+import { LoadingButton } from '@mui/lab';
+import { SettleForm } from './SettleForm';
+import { NftForm } from './NftForm';
+import firebase from './firebase';
+import {
+  getDatabase,
+  ref,
+  set,
+  child,
+  push,
+  update,
+  onValue,
+} from 'firebase/database';
+
+function writeData(address: string, nft: string, donated: boolean) {
+  const db = getDatabase();
+  let newKey: any = push(child(ref(db), 'airdrop')).key;
+
+  const data: {
+    address: string;
+    nft: string;
+    donated: boolean;
+  } = {
+    address: address,
+    nft: nft,
+    donated: donated,
+  };
+
+  const updates: {
+    [key: string]: {
+      address: string;
+      nft: string;
+      donated: boolean;
+    };
+  } = {};
+
+  updates['/airdrop/' + newKey] = data;
+  update(ref(db), updates);
+}
+
+function displayData() {
+  const db = getDatabase();
+  const airdropRef = ref(db, 'airdrop');
+  onValue(airdropRef, (snapshot: any) => {
+    const data = snapshot.val();
+    console.log(data);
+    // updateStarCount(postElement, data);
+  });
+}
+
+function updateData(key: string, donated: boolean) {
+  const db = getDatabase();
+  const updates: {
+    [key: string]: boolean;
+  } = {};
+  updates['/airdrop/' + key + '/donated'] = donated;
+  update(ref(db), updates);
+}
 // import ShuffleIcon from '@mui/icons-material/Shuffle';
 
 // AnonClient can still allow reads for an app but no transactions
@@ -33,7 +88,7 @@ const AnonClient = (client: algosdk.Algodv2, appId: number): RandomPicker => {
   return new RandomPicker({
     client: client,
     signer: PlaceHolderSigner,
-    sender: "",
+    sender: '',
     appId: appId,
   });
 };
@@ -45,6 +100,10 @@ export default function App() {
   const [appAddress, setAppAddress] = useState<string>(
     algosdk.getApplicationAddress(appId)
   );
+
+  useEffect(() => {
+    console.log(firebase);
+  }, []);
 
   const [isCreator, setIsCreator] = useState<boolean>(true);
 
@@ -66,7 +125,7 @@ export default function App() {
   const [loading, setLoading] = useState<boolean>(false);
   const [holdersArray, setHoldersArray] = useState<string[]>([]);
 
-  const [winner, setWinner] = useState<string>("");
+  const [winner, setWinner] = useState<string>('');
 
   // Set up user wallet from session
   const [accountSettings, setAccountSettings] = useState<SessionWalletData>(
@@ -82,7 +141,7 @@ export default function App() {
   // update our app client
   useEffect(() => {
     // Bad way to track connected status but...
-    if (accountSettings.data.acctList.length == 0 && appClient.sender !== "") {
+    if (accountSettings.data.acctList.length == 0 && appClient.sender !== '') {
       setAppClient(AnonClient(algodClient, appId));
     } else if (
       SessionWalletManager.connected(network) &&
@@ -105,7 +164,7 @@ export default function App() {
   }
 
   function account(): string {
-    return connected() ? SessionWalletManager.address(network) : "";
+    return connected() ? SessionWalletManager.address(network) : '';
   }
 
   // Check for an update bet round
@@ -120,8 +179,8 @@ export default function App() {
   async function getround(): Promise<number> {
     try {
       const acctState = await appClient.getAccountState(account());
-      if ("commitment_round" in acctState)
-        return acctState["commitment_round"] as number;
+      if ('commitment_round' in acctState)
+        return acctState['commitment_round'] as number;
     } catch (err) {}
     return 0;
   }
@@ -129,13 +188,13 @@ export default function App() {
   // Check for an update opted in status
   useEffect(() => {
     const addr = account();
-    if (addr === "") return setOptedIn(false);
+    if (addr === '') return setOptedIn(false);
 
     algodClient
       .accountApplicationInformation(addr, appId)
       .do()
       .then((data) => {
-        setOptedIn("app-local-state" in data);
+        setOptedIn('app-local-state' in data);
       })
       .catch((err) => {
         setOptedIn(false);
@@ -169,7 +228,7 @@ export default function App() {
   }
 
   async function closeOut() {
-    console.log("OptingOut...");
+    console.log('OptingOut...');
     setLoading(true);
     await appClient.closeOut();
     setOptedIn(false);
@@ -193,7 +252,7 @@ export default function App() {
   }
 
   async function settle() {
-    console.log("Settling...");
+    console.log('Settling...');
     const feePaySp = await appClient.getSuggestedParams(undefined, 1);
     const result = await appClient.settle(
       { creator: appClient.sender },
@@ -265,7 +324,7 @@ export default function App() {
                 accountSettings={accountSettings}
               />
             ) : (
-              ""
+              ''
             )}
           </Box>
         </Grid>
@@ -273,6 +332,34 @@ export default function App() {
           <LoadingButton color="warning" loading={loading} onClick={closeOut}>
             Opt Out of App
           </LoadingButton>
+        </Grid>
+        {/*
+        Initial Firebase Setup for Writing, Displaying and Updating the DB to store the nft for the airdrop
+        */}
+
+        <Grid item lg>
+          <Grid>
+            <Button
+              onClick={() =>
+                writeData('adalkdsflasdf', 'asdfnasdlfnasdlf', false)
+              }
+            >
+              Write Data
+            </Button>
+          </Grid>
+          <Grid>
+            <Button onClick={() => displayData()}>Display Data</Button>
+          </Grid>
+          <Grid>
+            <Button onClick={() => updateData('-NFiQVOUKPP2nEyvLzmG', false)}>
+              Update Donated Value to False
+            </Button>
+          </Grid>
+          <Grid>
+            <Button onClick={() => updateData('-NFiQVOUKPP2nEyvLzmG', true)}>
+              Update Donated Value to True
+            </Button>
+          </Grid>
         </Grid>
       </Grid>
     </div>
