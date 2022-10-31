@@ -70,11 +70,21 @@ export function SupporterView(props: supporterViewProps) {
                 label="AssetId"
                 onChange={handleChange}
               >
-                {assetArray.map((asset) => (
-                  <MenuItem key={asset.assetId} value={asset.assetId}>
-                    {asset.assetId}
-                  </MenuItem>
-                ))}
+                {assetArray.map((asset) =>
+                  asset.donated ? (
+                    <MenuItem
+                      disabled
+                      key={asset.assetId}
+                      value={asset.assetId}
+                    >
+                      {asset.assetId}
+                    </MenuItem>
+                  ) : (
+                    <MenuItem key={asset.assetId} value={asset.assetId}>
+                      {asset.assetId}
+                    </MenuItem>
+                  )
+                )}
               </Select>
             </FormControl>
           ) : (
