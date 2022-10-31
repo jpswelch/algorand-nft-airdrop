@@ -25,61 +25,7 @@ import {
 import { LoadingButton } from '@mui/lab';
 import { SettleForm } from './SettleForm';
 import { NftForm } from './NftForm';
-import firebase from './firebase';
-import {
-  getDatabase,
-  ref,
-  set,
-  child,
-  push,
-  update,
-  onValue,
-} from 'firebase/database';
 
-function writeData(address: string, nft: string, donated: boolean) {
-  const db = getDatabase();
-  let newKey: any = push(child(ref(db), 'airdrop')).key;
-
-  const data: {
-    address: string;
-    nft: string;
-    donated: boolean;
-  } = {
-    address: address,
-    nft: nft,
-    donated: donated,
-  };
-
-  const updates: {
-    [key: string]: {
-      address: string;
-      nft: string;
-      donated: boolean;
-    };
-  } = {};
-
-  updates['/airdrop/' + newKey] = data;
-  update(ref(db), updates);
-}
-
-function displayData() {
-  const db = getDatabase();
-  const airdropRef = ref(db, 'airdrop');
-  onValue(airdropRef, (snapshot: any) => {
-    const data = snapshot.val();
-    console.log(data);
-    // updateStarCount(postElement, data);
-  });
-}
-
-function updateData(key: string, donated: boolean) {
-  const db = getDatabase();
-  const updates: {
-    [key: string]: boolean;
-  } = {};
-  updates['/airdrop/' + key + '/donated'] = donated;
-  update(ref(db), updates);
-}
 // import ShuffleIcon from '@mui/icons-material/Shuffle';
 
 // AnonClient can still allow reads for an app but no transactions
@@ -101,9 +47,9 @@ export default function App() {
     algosdk.getApplicationAddress(appId)
   );
 
-  useEffect(() => {
-    console.log(firebase);
-  }, []);
+  // useEffect(() => {
+  //   console.log(firebase);
+  // }, []);
 
   const [isCreator, setIsCreator] = useState<boolean>(true);
 
@@ -332,34 +278,6 @@ export default function App() {
           <LoadingButton color="warning" loading={loading} onClick={closeOut}>
             Opt Out of App
           </LoadingButton>
-        </Grid>
-        {/*
-        Initial Firebase Setup for Writing, Displaying and Updating the DB to store the nft for the airdrop
-        */}
-
-        <Grid item lg>
-          <Grid>
-            <Button
-              onClick={() =>
-                writeData('adalkdsflasdf', 'asdfnasdlfnasdlf', false)
-              }
-            >
-              Write Data
-            </Button>
-          </Grid>
-          <Grid>
-            <Button onClick={() => displayData()}>Display Data</Button>
-          </Grid>
-          <Grid>
-            <Button onClick={() => updateData('-NFiQVOUKPP2nEyvLzmG', false)}>
-              Update Donated Value to False
-            </Button>
-          </Grid>
-          <Grid>
-            <Button onClick={() => updateData('-NFiQVOUKPP2nEyvLzmG', true)}>
-              Update Donated Value to True
-            </Button>
-          </Grid>
         </Grid>
       </Grid>
     </div>
