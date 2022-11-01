@@ -29,7 +29,7 @@ export function SupporterView(props: supporterViewProps) {
   const [optedIn, setOptedIn] = useState<boolean>(false);
   let supporter = accountSettings?.data?.acctList[0];
 
-  const handleChange = (event: SelectChangeEvent<typeof selectedAsset>) => {
+  const handleSelected = (event: SelectChangeEvent<typeof selectedAsset>) => {
     setSelectedAsset(event.target.value);
   };
 
@@ -65,10 +65,9 @@ export function SupporterView(props: supporterViewProps) {
             <FormControl fullWidth>
               <InputLabel id="demo-simple-select-label">AssetId</InputLabel>
               <Select
-                labelId="demo-simple-select-label"
-                id="demo-simple-select"
                 label="AssetId"
-                onChange={handleChange}
+                onChange={handleSelected}
+                value={selectedAsset}
               >
                 {assetArray.map((asset) =>
                   asset.donated ? (

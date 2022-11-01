@@ -7,16 +7,14 @@ import {
   SessionWalletData,
 } from "beaker-ts/lib/web";
 import { RandomPicker } from "./randompicker_client";
-import { CreatorView, type creatorViewAward } from "./CreatorView";
+import { CreatorView, type AwardData } from "./CreatorView";
 import { SupporterView } from "./SupporterView";
-import { AwardWinner, type AwardData } from "./awardWinner";
+import { transferAsset } from "./actions/NftTransferActions";
 import WalletSelector from "./WalletSelector";
 import {
   AppBar,
   Box,
   Button,
-  FormControlLabel,
-  FormGroup,
   Grid,
   Stack,
   Switch,
@@ -25,12 +23,9 @@ import {
 } from "@mui/material";
 import { LoadingButton } from "@mui/lab";
 import { SettleForm } from "./SettleForm";
-import { NftForm } from "./NftForm";
-import firebase from "./firebase";
 import {
   getDatabase,
   ref,
-  set,
   child,
   push,
   update,
@@ -124,7 +119,8 @@ export default function App() {
   const [optedIn, setOptedIn] = useState<boolean>(false);
 
   const [loading, setLoading] = useState<boolean>(false);
-  const [holdersArray, setHoldersArray] = useState<string[]>([]);
+  const [eligibleWinners, setEligibleWinners] = useState<string[]>([]);
+  const [assetId, setAssetId] = useState<number>([]);
 
   const [winner, setWinner] = useState<string>("");
 
@@ -237,16 +233,17 @@ export default function App() {
     setLoading(false);
   }
 
-  async function awardWinner(bfd: AwardData) {
-    console.log(`Award Winner with data: `, bfd.holders);
+  async function awardWinner(props: AwardData) {
+    console.log(`Award Winner with data: `, props.eligibleWinners);
 
     try {
       const result = await appClient.pickWinner({
-        holdersArrayLength: bfd.holders.length,
+        holdersArrayLength: props.eligibleWinners.length,
       });
 
+      setEligibleWinners(props.eligibleWinners);
+      setAssetId(props.assetId);
       setround(Number(result.returnValue));
-      setHoldersArray(bfd.holders);
     } catch (err) {
       console.error(err);
     }
@@ -261,10 +258,13 @@ export default function App() {
     );
     setround(0);
     const outcome: number = result.value;
-    setWinner(holdersArray[outcome]);
+    const winner = eligibleWinners[outcome];
+    // setWinner(eligibleWinners[outcome]);
     const msg = `${outcome} `;
-    console.log(holdersArray, winner);
+    console.log(eligibleWinners[outcome]);
     alert(msg);
+
+    await transferAsset(appClient.sender, winner.address, algodClient, assetId);
   }
 
   // We allow creation, opt in, bet, settle
@@ -277,11 +277,26 @@ export default function App() {
       Opt In to app
     </LoadingButton>
   ) : !round ? (
-    <Stack direction="row" spacing={1} alignItems="center">
-      <Typography>Supporter</Typography>
-      <Switch onChange={handleChange} checked={isCreator} />
-      <Typography> Creator</Typography>
-    </Stack>
+    <>
+      <Stack direction="row" spacing={1} alignItems="center">
+        <Typography>Supporter</Typography>
+        <Switch onChange={handleChange} checked={isCreator} />
+        <Typography> Creator</Typography>
+      </Stack>
+      {isCreator ? (
+        <CreatorView
+          algodClient={algodClient}
+          network={network}
+          accountSettings={accountSettings}
+          awardWinner={awardWinner}
+        />
+      ) : (
+        <SupporterView
+          algodClient={algodClient}
+          accountSettings={accountSettings}
+        />
+      )}
+    </>
   ) : (
     <SettleForm round={round} settle={settle} algodClient={algodClient} />
   );
@@ -317,20 +332,7 @@ export default function App() {
       >
         <Grid item lg>
           <Box>{action}</Box>
-          <Box>
-            {isCreator ? (
-              <CreatorView
-                algodClient={algodClient}
-                network={network}
-                accountSettings={accountSettings}
-              />
-            ) : (
-              <SupporterView
-                algodClient={algodClient}
-                accountSettings={accountSettings}
-              />
-            )}
-          </Box>
+          <Box></Box>
         </Grid>
         <Grid item lg>
           <LoadingButton color="warning" loading={loading} onClick={closeOut}>

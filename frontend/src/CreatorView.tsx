@@ -1,9 +1,29 @@
 // @ts-nocheck
 import algosdk from "algosdk";
 import { useState, useEffect } from "react";
-import { Button, Grid, Stack, Typography, Switch } from "@mui/material";
+import {
+  Button,
+  Grid,
+  Stack,
+  Typography,
+  Switch,
+  FormControl,
+  InputLabel,
+  Select,
+  MenuItem,
+} from "@mui/material";
 import { LoadingButton } from "@mui/lab";
 import { NftForm } from "./NftForm";
+import firebase from "./firebase";
+import {
+  getDatabase,
+  ref,
+  set,
+  child,
+  push,
+  update,
+  onValue,
+} from "firebase/database";
 
 const baseServer = import.meta.env.VITE_NETWORK_API;
 
@@ -15,97 +35,155 @@ const token = {
 const indexerClient = new algosdk.Indexer(token, baseServer, port);
 
 export type AwardData = {
-  holders: Array;
+  eligibleWinners: Array;
+  assetId: number;
 };
 type creatorViewProps = {
   algodClient: algosdk.Algodv2;
   network: string;
   accountSettings: SessionWalletData;
+  awardWinner(bfd: AwardData): void;
 };
 
 export function CreatorView(props: creatorViewProps) {
   const { algodClient, network, accountSettings } = props;
+  const [assetArray, setAssetArray] = useState<Object[]>([]);
+  const [optedInLoading, setOptedInLoading] = useState(false);
+  const [optedInArray, setOptedInArray] = useState<string[]>([]);
 
-  const [assets, setAssets] = useState([]);
-  const [holders, setHolders] = useState([]);
-  const [fetch, setFetch] = useState(false);
   let address = accountSettings?.data?.acctList[0];
   //let address = "TIMPJ6P5FZRNNKYJLAYD44XFOSUWEOUAR6NRWJMQR66BRM3QH7UUWEHA24"; //placeholder until wallet connect
   // console.log(address);
 
   const [loading, setLoading] = useState<boolean>(false);
-  const [loadingF, setLoadingF] = useState<boolean>(false);
 
   const [isMintAsset, setIsMintAssetr] = useState<boolean>(true);
+  const [selectedAsset, setSelectedAsset] = useState<string>("");
 
   const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     setIsMintAssetr(event.target.checked);
   };
+  const handleSelect = (event: React.ChangeEvent<HTMLInputElement>) => {
+    setSelectedAsset(event.target.value);
+  };
 
   async function submit() {
     setLoading(true);
-    await props.awardWinner({ holders: holders });
+
+    setLoading(false);
+  }
+
+  async function pickWinner() {
+    setLoading(true);
+    let totalAssets = [];
+
+    let assetInfo = await indexerClient
+      .lookupAccountCreatedAssets(address)
+      .do();
+
+    totalAssets = [...assetInfo.assets];
+    while ("next-token" in assetInfo) {
+      assetInfo = await indexerClient
+        .lookupAccountCreatedAssets(address)
+        .nextToken(assetInfo["next-token"])
+        .do();
+      totalAssets = [...totalAssets, ...assetInfo.assets];
+    }
+    //fetch holders of above assets
+    let totalHolders = [];
+    let eligibleWinners = [];
+    for (let i = 0; i < totalAssets.length; i++) {
+      let assetInfo = await indexerClient
+        .lookupAssetBalances(totalAssets[i].index)
+        .do();
+      if (assetInfo?.balances[0]?.address !== address) {
+        //don't include creator in holders array
+        totalHolders = [...totalHolders, ...assetInfo.balances];
+      }
+      totalHolders = [...totalHolders, ...assetInfo.balances];
+      //avoid rate limiting by spacing out indexer calls a bit
+      await delay(250);
+    }
+    console.log(optedInArray, totalHolders);
+    if (optedInArray.length) {
+      for (let i = 0; i < optedInArray.length; i++) {
+        if (
+          totalHolders.some(
+            (elementHold) => elementHold.address === optedInArray[i].address
+          )
+        ) {
+          eligibleWinners.push(optedInArray[i]);
+        }
+      }
+      // console.log(eligibleWinners);
+    } else {
+      alert("No one has opted into recieving this asset yet!");
+    }
+
+    // Show graphic
+
+    //award winner
+
+    await props.awardWinner({
+      eligibleWinners: eligibleWinners,
+      assetId: selectedAsset,
+    });
 
     setLoading(false);
   }
 
   useEffect(() => {
-    const fetchAssets = async () => {
-      setLoadingF(true);
-      let totalRes;
+    const db = getDatabase();
+    const airdropRef = ref(db, "airdrop");
+    onValue(airdropRef, (snapshot: any) => {
+      const data = snapshot.val();
 
-      let assetInfo = await indexerClient
-        .lookupAccountCreatedAssets(address)
-        .do();
-
-      totalRes = [...assetInfo.assets];
-      while ("next-token" in assetInfo) {
-        assetInfo = await indexerClient
-          .lookupAccountCreatedAssets(address)
-          .nextToken(assetInfo["next-token"])
-          .do();
-        totalRes = [...totalRes, ...assetInfo.assets];
+      let array = [];
+      let value;
+      for (let key in data) {
+        value = data[key];
+        if (value.creator === address) {
+          array.push({ key, ...value });
+        }
       }
-      setAssets(totalRes);
-    };
-    if (address !== undefined && fetch) {
-      setFetch(false);
-      fetchAssets();
-    }
-  }, [address, fetch]);
+      setAssetArray(array);
+      // updateStarCount(postElement, data);
+    });
+  }, []);
+
   const delay = (delayInms) => {
     return new Promise((resolve) => setTimeout(resolve, delayInms));
   };
-  useEffect(() => {
-    let count = 0;
-    let totalHolders = [];
-    const fetchHolders = async () => {
-      console.log(count);
-      for (let i = 0; i < assets.length; i++) {
-        let assetInfo = await indexerClient
-          .lookupAssetBalances(assets[i].index)
-          .currencyGreaterThan(0)
-          .limit(1)
-          .do();
-        if (assetInfo?.balances[0]?.address !== address) {
-          //don't include creator in holders array
-          totalHolders = [...totalHolders, ...assetInfo.balances];
-        }
-        totalHolders = [...totalHolders, ...assetInfo.balances];
-        count++;
 
-        //avoid rate limiting by spacing out indexer calls a bit
-        await delay(250);
+  useEffect(() => {
+    const fetchOptedIn = async () => {
+      setOptedInLoading(true);
+
+      let assetInfo = await indexerClient
+        .lookupAssetBalances(selectedAsset)
+        .do();
+
+      let totalRes = assetInfo?.balances.filter((balance) => {
+        return balance.amount === 0;
+      });
+
+      while ("next-token" in assetInfo) {
+        assetInfo = await indexerClient
+          .lookupAssetBalances(selectedAsset)
+          .nextToken(assetInfo["next-token"])
+          .do();
+        let arr = assetInfo?.balances.filter((balance) => {
+          balance.amount === 0;
+        });
+        totalRes = [...totalRes, ...arr];
       }
-      setLoadingF(false);
-      setHolders(totalHolders);
+      setOptedInArray(totalRes);
+      setOptedInLoading(false);
     };
-    if (assets.length && assets.length !== count) {
-      console.log(fetch, assets.length, count);
-      fetchHolders();
+    if (selectedAsset) {
+      fetchOptedIn();
     }
-  }, [address, assets]);
-  console.log(isMintAsset);
+  }, [selectedAsset]);
 
   return (
     <div className="App">
@@ -119,24 +197,48 @@ export function CreatorView(props: creatorViewProps) {
 
           {isMintAsset ? (
             <NftForm algodClient={algodClient} creator={address} />
-          ) : holders.length && !loadingF ? (
-            <Grid item lg>
-              You have {holders.length} holders currently
-            </Grid>
+          ) : assetArray ? (
+            <>
+              <FormControl fullWidth>
+                <InputLabel id="demo-simple-select-label">AssetId</InputLabel>
+                <Select
+                  label="AssetId"
+                  onChange={handleSelect}
+                  value={selectedAsset}
+                >
+                  {assetArray.map((asset) =>
+                    asset.donated ? (
+                      <MenuItem
+                        disabled
+                        key={asset.assetId}
+                        value={asset.assetId}
+                      >
+                        {asset.assetId}
+                      </MenuItem>
+                    ) : (
+                      <MenuItem key={asset.assetId} value={asset.assetId}>
+                        {asset.assetId}
+                      </MenuItem>
+                    )
+                  )}
+                </Select>
+              </FormControl>
+            </>
           ) : (
+            "You do not have any Assets to give away! Head over to  the Mint asset page to start the process!"
+          )}
+
+          {optedInArray.length ? (
             <LoadingButton
               variant="contained"
-              loading={loadingF}
-              onClick={() => setFetch(true)}
+              loading={loading}
+              onClick={pickWinner}
             >
-              Fetch Holders
+              Pick winner and transfer!
             </LoadingButton>
+          ) : (
+            ""
           )}
-        </Grid>
-        <Grid item lg>
-          <Button variant="contained" onClick={submit}>
-            Airdrop
-          </Button>
         </Grid>
       </Grid>
     </div>

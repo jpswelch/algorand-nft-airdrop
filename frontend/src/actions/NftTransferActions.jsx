@@ -1,25 +1,25 @@
 /* global AlgoSigner */
 import algosdk from "algosdk";
 
-export const transferNft = async (creator, supporter, algodClient) => {
+export const transferAsset = async (creator, winner, algodClient, assetId) => {
   let params = await algodclient.getTransactionParams().do();
 
   sender = creator;
-  recipient = supporter;
+  recipient = winner;
   revocationTarget = undefined;
   closeRemainderTo = undefined;
   //Amount of the asset to transfer
   amount = 1;
 
   // signing and sending "txn" will send "amount" assets from "sender" to "recipient"
-  let xtxn = algosdk.makeAssetTransferTxnWithSuggestedParams(
+  let txn = algosdk.makeAssetTransferTxnWithSuggestedParams(
     sender,
     recipient,
     closeRemainderTo,
     revocationTarget,
     amount,
     note,
-    assetID,
+    assetId,
     params
   );
   // Must be signed by the account sending the asset
