@@ -261,10 +261,23 @@ export default function App() {
     const winner = eligibleWinners[outcome];
     // setWinner(eligibleWinners[outcome]);
     const msg = `${outcome} `;
-    console.log(eligibleWinners[outcome]);
+    // console.log(eligibleWinners[outcome]);
     alert(msg);
 
-    await transferAsset(appClient.sender, winner.address, algodClient, assetId);
+    console.log(account(), eligibleWinners, outcome, winner);
+
+    const txn = await transferAsset(
+      account(),
+      winner.address,
+      algodClient,
+      assetId
+    );
+
+    if (txn) {
+      alert("success", txn);
+    } else {
+      alert("transfer failed");
+    }
   }
 
   // We allow creation, opt in, bet, settle
