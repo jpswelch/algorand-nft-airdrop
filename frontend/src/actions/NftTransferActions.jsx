@@ -2,15 +2,15 @@
 import algosdk from "algosdk";
 
 export const transferAsset = async (creator, winner, algodClient, assetId) => {
-  let params = await algodclient.getTransactionParams().do();
+  let params = await algodClient.getTransactionParams().do();
 
-  sender = creator;
-  recipient = winner;
-  revocationTarget = undefined;
-  closeRemainderTo = undefined;
+  let sender = creator;
+  let recipient = winner;
+  let revocationTarget = undefined;
+  let closeRemainderTo = undefined;
   //Amount of the asset to transfer
-  amount = 1;
-
+  let amount = 1;
+  let note = undefined;
   // signing and sending "txn" will send "amount" assets from "sender" to "recipient"
   let txn = algosdk.makeAssetTransferTxnWithSuggestedParams(
     sender,

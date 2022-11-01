@@ -10,6 +10,7 @@ import { RandomPicker } from "./randompicker_client";
 import { CreatorView, type AwardData } from "./CreatorView";
 import { SupporterView } from "./SupporterView";
 import { transferAsset } from "./actions/NftTransferActions";
+import { Spinner } from "./Spinner";
 import WalletSelector from "./WalletSelector";
 import {
   AppBar,
@@ -120,7 +121,8 @@ export default function App() {
 
   const [loading, setLoading] = useState<boolean>(false);
   const [eligibleWinners, setEligibleWinners] = useState<string[]>([]);
-  const [assetId, setAssetId] = useState<number>([]);
+  const [assetId, setAssetId] = useState<number>(0);
+  const [assetKey, setAssetKey] = useState<string>("");
 
   const [winner, setWinner] = useState<string>("");
 
@@ -243,6 +245,7 @@ export default function App() {
 
       setEligibleWinners(props.eligibleWinners);
       setAssetId(props.assetId);
+      setAssetKey(props.assetKey);
       setround(Number(result.returnValue));
     } catch (err) {
       console.error(err);
@@ -256,25 +259,22 @@ export default function App() {
       { creator: appClient.sender },
       { suggestedParams: feePaySp }
     );
-    setround(0);
+
     const outcome: number = result.value;
     const winner = eligibleWinners[outcome];
-    // setWinner(eligibleWinners[outcome]);
-    const msg = `${outcome} `;
+    setWinner(winner.address);
     // console.log(eligibleWinners[outcome]);
-    alert(msg);
 
     console.log(account(), eligibleWinners, outcome, winner);
+  }
 
-    const txn = await transferAsset(
-      account(),
-      winner.address,
-      algodClient,
-      assetId
-    );
+  async function sendTransferTransaction() {
+    const txn = await transferAsset(account(), winner, algodClient, assetId);
+    console.log(assetKey);
 
     if (txn) {
-      alert("success", txn);
+      updateData(assetKey, true);
+      alert(`success, txn`);
     } else {
       alert("transfer failed");
     }
@@ -311,9 +311,28 @@ export default function App() {
       )}
     </>
   ) : (
-    <SettleForm round={round} settle={settle} algodClient={algodClient} />
+    <>
+      {winner ? (
+        <>
+          <Spinner
+            algodClient={algodClient}
+            network={network}
+            accountSettings={accountSettings}
+            winner={winner}
+            eligibleWinners={eligibleWinners}
+          />
+          <Grid item lg>
+            <Button color="warning" onClick={sendTransferTransaction}>
+              Initiate transfer
+            </Button>
+            <Button onClick={() => setround(0)}>Reset</Button>
+          </Grid>
+        </>
+      ) : (
+        <SettleForm round={round} settle={settle} algodClient={algodClient} />
+      )}
+    </>
   );
-  console.log(isCreator);
   // The app ui
   return (
     <div className="App">

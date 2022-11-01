@@ -37,6 +37,7 @@ const indexerClient = new algosdk.Indexer(token, baseServer, port);
 export type AwardData = {
   eligibleWinners: Array;
   assetId: number;
+  assetKey: string;
 };
 type creatorViewProps = {
   algodClient: algosdk.Algodv2;
@@ -57,11 +58,11 @@ export function CreatorView(props: creatorViewProps) {
 
   const [loading, setLoading] = useState<boolean>(false);
 
-  const [isMintAsset, setIsMintAssetr] = useState<boolean>(true);
+  const [isMintAsset, setIsMintAsset] = useState<boolean>(true);
   const [selectedAsset, setSelectedAsset] = useState<string>("");
 
   const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    setIsMintAssetr(event.target.checked);
+    setIsMintAsset(event.target.checked);
   };
   const handleSelect = (event: React.ChangeEvent<HTMLInputElement>) => {
     setSelectedAsset(event.target.value);
@@ -124,9 +125,16 @@ export function CreatorView(props: creatorViewProps) {
 
     //award winner
 
+    const dbAsset = assetArray.find((ast) => {
+      console.log(ast, ast.assetId == selectedAsset);
+      return ast.assetId == selectedAsset;
+    });
+    console.log(dbAsset);
+
     await props.awardWinner({
       eligibleWinners: eligibleWinners,
       assetId: selectedAsset,
+      assetKey: dbAsset.key,
     });
 
     setLoading(false);
