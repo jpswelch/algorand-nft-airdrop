@@ -9,7 +9,6 @@ import {
 import { RandomPicker } from "./randompicker_client";
 import { CreatorView, type AwardData } from "./components/CreatorView";
 import { SupporterView } from "./components/SupporterView";
-import { transferAsset } from "./actions/NftTransferActions";
 import { Spinner } from "./components/Spinner";
 import WalletSelector from "./components/WalletSelector";
 import {
@@ -23,61 +22,7 @@ import {
   Typography,
 } from "@mui/material";
 import { LoadingButton } from "@mui/lab";
-import { SettleForm } from "./forms/SettleForm";
-import {
-  getDatabase,
-  ref,
-  child,
-  push,
-  update,
-  onValue,
-} from "firebase/database";
-
-function writeData(address: string, nft: string, donated: boolean) {
-  const db = getDatabase();
-  let newKey: any = push(child(ref(db), "airdrop")).key;
-
-  const data: {
-    address: string;
-    nft: string;
-    donated: boolean;
-  } = {
-    address: address,
-    nft: nft,
-    donated: donated,
-  };
-
-  const updates: {
-    [key: string]: {
-      address: string;
-      nft: string;
-      donated: boolean;
-    };
-  } = {};
-
-  updates["/airdrop/" + newKey] = data;
-  update(ref(db), updates);
-}
-
-function displayData() {
-  const db = getDatabase();
-  const airdropRef = ref(db, "airdrop");
-  onValue(airdropRef, (snapshot: any) => {
-    const data = snapshot.val();
-    console.log(data);
-    // updateStarCount(postElement, data);
-  });
-}
-
-function updateData(key: string, donated: boolean) {
-  const db = getDatabase();
-  const updates: {
-    [key: string]: boolean;
-  } = {};
-  updates["/airdrop/" + key + "/donated"] = donated;
-  update(ref(db), updates);
-}
-// import ShuffleIcon from '@mui/icons-material/Shuffle';
+import { SettleForm } from "./forms/SettleForm"
 
 // AnonClient can still allow reads for an app but no transactions
 // can be signed
@@ -98,9 +43,6 @@ export default function App() {
     algosdk.getApplicationAddress(appId)
   );
 
-  // useEffect(() => {
-  //   console.log(firebase);
-  // }, []);
 
   const [isCreator, setIsCreator] = useState<boolean>(true);
 
@@ -124,7 +66,7 @@ export default function App() {
   const [assetId, setAssetId] = useState<number>(0);
   const [assetKey, setAssetKey] = useState<string>("");
 
-  const [winner, setWinner] = useState<string>("");
+  const [winner, setWinner] = useState<number | null>(null);
 
   // Set up user wallet from session
   const [accountSettings, setAccountSettings] = useState<SessionWalletData>(
@@ -180,7 +122,7 @@ export default function App() {
       const acctState = await appClient.getAccountState(account());
       if ("commitment_round" in acctState)
         return acctState["commitment_round"] as number;
-    } catch (err) {}
+    } catch (err) { }
     return 0;
   }
 
@@ -219,12 +161,6 @@ export default function App() {
     setLoading(false);
   }
 
-  async function updateApp() {
-    await appClient.update();
-  }
-  async function deleteApp() {
-    await appClient.delete();
-  }
 
   async function closeOut() {
     console.log("OptingOut...");
@@ -260,25 +196,12 @@ export default function App() {
       { suggestedParams: feePaySp }
     );
 
-    const outcome: number = result.value;
-    const winner = eligibleWinners[outcome];
-    setWinner(winner.address);
-    // console.log(eligibleWinners[outcome]);
-
-    console.log(account(), eligibleWinners, outcome, winner);
+    const winner: number = Number(result.value);
+    setWinner(winner);
+    // console.log(account(), eligibleWinners, winner);
   }
 
-  async function sendTransferTransaction() {
-    const txn = await transferAsset(account(), winner, algodClient, assetId);
-    console.log(assetKey);
 
-    if (txn) {
-      updateData(assetKey, true);
-      alert(`success, txn`);
-    } else {
-      alert("transfer failed");
-    }
-  }
 
   // We allow creation, opt in, bet, settle
   const action = !appId ? (
@@ -316,17 +239,12 @@ export default function App() {
         <>
           <Spinner
             algodClient={algodClient}
-            network={network}
-            accountSettings={accountSettings}
             winner={winner}
             eligibleWinners={eligibleWinners}
+            creator={account()}
+            assetId={assetId}
+            assetKey={assetKey}
           />
-          <Grid item lg>
-            <Button color="warning" onClick={sendTransferTransaction}>
-              Initiate transfer
-            </Button>
-            <Button onClick={() => setround(0)}>Reset</Button>
-          </Grid>
         </>
       ) : (
         <SettleForm round={round} settle={settle} algodClient={algodClient} />
@@ -370,34 +288,6 @@ export default function App() {
           <LoadingButton color="warning" loading={loading} onClick={closeOut}>
             Opt Out of App
           </LoadingButton>
-        </Grid>
-        {/*
-        Initial Firebase Setup for Writing, Displaying and Updating the DB to store the nft for the airdrop
-        */}
-
-        <Grid item lg>
-          <Grid>
-            <Button
-              onClick={() =>
-                writeData("adalkdsflasdf", "asdfnasdlfnasdlf", false)
-              }
-            >
-              Write Data
-            </Button>
-          </Grid>
-          <Grid>
-            <Button onClick={() => displayData()}>Display Data</Button>
-          </Grid>
-          <Grid>
-            <Button onClick={() => updateData("-NFiQVOUKPP2nEyvLzmG", false)}>
-              Update Donated Value to False
-            </Button>
-          </Grid>
-          <Grid>
-            <Button onClick={() => updateData("-NFiQVOUKPP2nEyvLzmG", true)}>
-              Update Donated Value to True
-            </Button>
-          </Grid>
         </Grid>
       </Grid>
     </div>

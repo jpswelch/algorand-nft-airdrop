@@ -1,50 +1,64 @@
 import { Wheel } from "react-custom-roulette";
-
-// @ts-nocheck
 import algosdk from "algosdk";
 import { useState, useEffect } from "react";
 import {
-  Button,
-  Grid,
-  Stack,
-  Typography,
-  Switch,
-  FormControl,
-  InputLabel,
-  Select,
-  MenuItem,
-} from "@mui/material";
-import { LoadingButton } from "@mui/lab";
-import {
-  PlaceHolderSigner,
-  SessionWalletManager,
   SessionWalletData,
 } from "beaker-ts/lib/web";
+import JSConfetti from 'js-confetti'
+import { transferAsset } from "../actions/NftTransferActions"
+import {
+  getDatabase,
+  ref,
+  child,
+  push,
+  update,
+  onValue,
+} from "firebase/database";
+import { TwitterShareButton } from "react-twitter-embed";
 type SpinnerProps = {
   algodClient: algosdk.Algodv2;
-  network: string;
-  accountSettings: SessionWalletData;
-  winner: string;
+  assetId: number;
+  winner: number;
   eligibleWinners: Object[];
+  creator: string;
+  assetKey: string
 };
-// const data = [
-//     { option: '0', style: { backgroundColor: 'green', textColor: 'black' } },
-//     { option: '1', style: { backgroundColor: 'white' } },
-//     { option: '2' },
-//   ]
 
 export function Spinner(props: SpinnerProps) {
-  const { eligibleWinners, winner } = props;
+  const { eligibleWinners, winner, algodClient, creator, assetId, assetKey } = props;
+  const jsConfetti = new JSConfetti()
+  function updateData(key: string, donated: boolean) {
+    const db = getDatabase();
+    const updates: {
+      [key: string]: boolean;
+    } = {};
+    updates["/airdrop/" + key + "/donated"] = donated;
+    update(ref(db), updates);
+  }
+
   const data = eligibleWinners.map((element) => {
     return {
       option: `${element.address.substring(
         0,
         4
-      )} ... ${element.address.substring(54, 57)}`,
+      )} ... ${element.address.substring(54, 58)}`,
     };
   });
 
   const [mustSpin, setMustSpin] = useState<boolean>(false);
+
+  async function endSpinner() {
+    jsConfetti.addConfetti()
+    const txn = await transferAsset(creator, eligibleWinners[winner].address, algodClient, assetId);
+    console.log(assetKey);
+
+    if (txn) {
+      updateData(assetKey, true);
+      alert(`success, ${txn}`);
+    } else {
+      alert("transfer failed");
+    }
+  }
 
   useEffect(() => {
     if (winner) {
@@ -53,13 +67,20 @@ export function Spinner(props: SpinnerProps) {
       setMustSpin(false);
     }
   }, []);
+
+  console.log(creator)
+
   return (
-    <Wheel
+    <><Wheel
       mustStartSpinning={mustSpin}
-      prizeNumber={3}
+      prizeNumber={winner}
       data={data}
       backgroundColors={["#3e3e3e", "#df3428"]}
       textColors={["#ffffff"]}
-    />
+      onStopSpinning={endSpinner} />
+      <TwitterShareButton
+        url={`https://goalseeker.purestake.io/algorand/testnet/asset/${assetId}`}
+        options={{ text: `I just airdropped an exclusive NFT to one of my best supporters ${eligibleWinners[winner].address}`, via: 'AlgorandAirdrop' }} />
+    </>
   );
 }

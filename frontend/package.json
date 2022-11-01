@@ -18,9 +18,13 @@
     "beaker-ts": "^0.0.51",
     "firebase": "^9.13.0",
     "ipfs-http-client": "^59.0.0",
+    "js-confetti": "^0.11.0",
+    "mkdirp": "^1.0.4",
     "path-browserify": "^1.0.1",
     "react": "^18.2.0",
+    "react-custom-roulette": "^1.2.0",
     "react-dom": "^18.2.0",
+    "react-twitter-embed": "^4.0.4",
     "tslib": "^2.4.0",
     "tsx": "^3.10.1"
   },
