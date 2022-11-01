@@ -13,8 +13,8 @@ import {
   MenuItem,
 } from "@mui/material";
 import { LoadingButton } from "@mui/lab";
-import { NftForm } from "./NftForm";
-import firebase from "./firebase";
+import { NftForm } from "../forms/NftForm";
+import firebase from "../firebase";
 import {
   getDatabase,
   ref,

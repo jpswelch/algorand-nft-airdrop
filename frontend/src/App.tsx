@@ -7,11 +7,11 @@ import {
   SessionWalletData,
 } from "beaker-ts/lib/web";
 import { RandomPicker } from "./randompicker_client";
-import { CreatorView, type AwardData } from "./CreatorView";
-import { SupporterView } from "./SupporterView";
+import { CreatorView, type AwardData } from "./components/CreatorView";
+import { SupporterView } from "./components/SupporterView";
 import { transferAsset } from "./actions/NftTransferActions";
-import { Spinner } from "./Spinner";
-import WalletSelector from "./WalletSelector";
+import { Spinner } from "./components/Spinner";
+import WalletSelector from "./components/WalletSelector";
 import {
   AppBar,
   Box,
@@ -23,7 +23,7 @@ import {
   Typography,
 } from "@mui/material";
 import { LoadingButton } from "@mui/lab";
-import { SettleForm } from "./SettleForm";
+import { SettleForm } from "./forms/SettleForm";
 import {
   getDatabase,
   ref,

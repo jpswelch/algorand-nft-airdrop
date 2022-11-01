@@ -3,8 +3,8 @@ import algosdk from "algosdk";
 import { useState, useEffect } from "react";
 import { Grid, FormControl, InputLabel, Select, MenuItem } from "@mui/material";
 import { LoadingButton } from "@mui/lab";
-import { optInToAsset } from "./actions/SupporterOptInActions";
-import firebase from "./firebase";
+import { optInToAsset } from "../actions/SupporterOptInActions";
+import firebase from "../firebase";
 import {
   getDatabase,
   ref,
