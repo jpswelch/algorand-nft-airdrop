@@ -2,6 +2,7 @@
 import algosdk from "algosdk";
 
 export const transferAsset = async (creator, winner, algodClient, assetId) => {
+  console.log(creator, winner);
   let params = await algodClient.getTransactionParams().do();
 
   let sender = creator;
