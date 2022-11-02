@@ -110,58 +110,7 @@ export default function App() {
     url: string;
     image: string;
   };
-  const [availableAssets, setAvailableAssets] = useState<AssetObj[]>([]);
 
-  const getAsset = async (id: number) => {
-    return new Promise((resolve, reject) => {
-      const asset = indexerClient
-        .lookupAssetByID(id)
-        .do()
-        .then((result) => {
-          resolve(result.asset);
-        })
-        .catch((err) => {
-          console.log(err);
-        });
-    });
-  };
-  useEffect(() => {
-    const db = getDatabase();
-    const airdropRef = ref(db, 'airdrop');
-    onValue(airdropRef, (snapshot: any) => {
-      const datarec = snapshot.val();
-      let assetArray: any = [];
-      let res_image: string = '';
-      let url: string = '';
-      let d: string = '';
-      // let assetId: string = '';
-      for (let key in datarec) {
-        let assetId: string = datarec[key].assetId;
-        // datarec[key].assetId
-        getAsset(assetId).then((result: any) => {
-          url = 'https://gateway.ipfs.io/ipfs/' + result.params.url;
-          // console.log(url);
-          fetch(url)
-            .then((response) => response.text())
-            .then((data) => {
-              res_image = JSON.parse(data).image;
-              console.log(JSON.parse(data).image);
-              assetArray.push({
-                index: assetId,
-                name: result.params['unit-name'],
-                url: result.params.url,
-                image: res_image,
-              });
-              console.log(assetArray);
-              setAvailableAssets(assetArray);
-            })
-            .catch((error) => {
-              console.error('Error', error);
-            });
-        });
-      }
-    });
-  }, []);
 
   // If the account info, client, or app id change
   // update our app client
@@ -208,7 +157,7 @@ export default function App() {
       const acctState = await appClient.getAccountState(account());
       if ('commitment_round' in acctState)
         return acctState['commitment_round'] as number;
-    } catch (err) {}
+    } catch (err) { }
     return 0;
   }
 
@@ -384,16 +333,7 @@ export default function App() {
         </Grid>
         <Grid item lg>
           <Box>{action}</Box>
-          <Box></Box>
-          <Box>
-            <CardList assets={availableAssets} />
-          </Box>
         </Grid>
-        {/* <Grid item lg>
-          <LoadingButton color="warning" loading={loading} onClick={closeOut}>
-            Opt Out of App
-          </LoadingButton>
-        </Grid> */}
       </Grid>
     </div>
   );
