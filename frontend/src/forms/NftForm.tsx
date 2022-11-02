@@ -13,6 +13,8 @@ import {
   TextareaAutosize,
 } from '@mui/material';
 
+import { makeStyles } from '@mui/styles'
+
 import { airdropNFT } from '../actions/NftCreateActions';
 import firebase from '../firebase';
 import {
@@ -24,6 +26,7 @@ import {
   update,
   onValue,
 } from 'firebase/database';
+import { ClassNames } from '@emotion/react';
 
 function writeData(
   creator: string,
@@ -90,10 +93,18 @@ export type NftFormProps = {
   creator: string;
 };
 
+
+const useStyles = makeStyles({
+  input: {
+    color: "white"
+  }
+});
+
 export const NftForm = (props: NftFormProps) => {
   const [photo, setPhotoData] = useState<any>();
   const [title, setTitle] = useState<string>('');
   const [description, setDescription] = useState<string>('');
+  const classes = useStyles();
 
   useEffect(() => {
     // initialize firebase
@@ -118,16 +129,22 @@ export const NftForm = (props: NftFormProps) => {
       alert('Minting failed!');
     }
   };
-  return (
-    <Grid>
-      <Grid>
-        <Box>
-          <Typography variant="h5">Create an NFT</Typography>
-        </Box>
-      </Grid>
+  const inputProps = {
+    color: "white",
+  };
 
-      <Grid>
-        <FormControl>
+  return (
+    <>
+      <Grid container
+        direction="column"
+        alignItems="center"
+        justifyContent="center"
+        spacing={6}
+        margin="10px"
+        color="secondary"
+        sx={{ backgroundColor: 'secondary.main', borderRadius: "30px", padding: "10px", }}
+      >
+        <FormControl margin={'normal'} >
           <TextField
             id="title"
             size="lg"
@@ -135,49 +152,38 @@ export const NftForm = (props: NftFormProps) => {
             value={title}
             variant="outlined"
             fullWidth
-            onChange={(e) => setTitle(e.target.value)}
-          />
-          {/* <Input
-          id="title"
-          size="md"
-          placeholder="Enter Title"
-          value={title}
-          onChange={(e) => setTitle(e.target.value)}
-        /> */}
+            inputProps={{ className: classes.input }}
+            color={"info"}
+            onChange={(e) => setTitle(e.target.value)} />
           <FormControl />
-          <FormControl>
-            {/* <InputLabel>Description</InputLabel> */}
-            {/* <Input
-            id="description"
-            value={description}
-            onChange={(e) => setDescription(e.target.value)}
-          /> */}
+          <FormControl margin={'normal'}>
             <TextField
               minRows={6}
               id="description"
               value={description}
               multiline
               placeholder="Description"
+              inputProps={{ className: classes.input }}
+              color={"info"}
               fullWidth
-              onChange={(e) => setDescription(e.target.value)}
-            />
+              onChange={(e) => setDescription(e.target.value)} />
           </FormControl>
-          <FormControl>
+          <FormControl margin={'normal'}>
             <Input
               type="file"
               fullWidth
+              inputProps={{ className: classes.input }}
+              color={"info"}
               onChange={(e) => setPhotoData(e.target.files[0])}
-              hidden
-            />
+              hidden />
           </FormControl>
         </FormControl>
       </Grid>
-
-      <Grid>
-        <Button onClick={handleSubmit} variant="contained" color="primary">
+      <Box textAlign='center' marginLeft={"60px"} paddingTop={"20px"}>
+        <Button onClick={handleSubmit} variant="contained" color="primary" >
           Submit
         </Button>
-      </Grid>
-    </Grid>
+      </Box>
+    </>
   );
 };

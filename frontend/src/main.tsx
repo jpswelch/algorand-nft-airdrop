@@ -20,6 +20,9 @@ const theme = createTheme({
       dark: '#466278',
       contrastText: '#e4f1ff',
     },
+    info: {
+      main: '#FFFFFF',
+    },
   },
 });
 

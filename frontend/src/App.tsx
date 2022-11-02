@@ -295,11 +295,6 @@ export default function App() {
     <Typography variant="h3">Create an NFT Lotto. Win an NFT.</Typography>
   ) : !round ? (
     <>
-      <Stack direction="row" spacing={1} alignItems="center">
-        <Typography>Supporter</Typography>
-        <Switch onChange={handleChange} checked={isCreator} />
-        <Typography> Creator</Typography>
-      </Stack>
       {isCreator ? (
         <CreatorView
           algodClient={algodClient}
@@ -326,6 +321,7 @@ export default function App() {
             assetId={assetId}
             assetKey={assetKey}
           />
+          <Button onClick={() => setround(0)}>Reset</Button>
         </>
       ) : (
         <SettleForm round={round} settle={settle} algodClient={algodClient} />
@@ -347,6 +343,15 @@ export default function App() {
               NFT Lotto
             </Typography>
           </Box>
+          <Box sx={{ flexGrow: 1 }} />
+          <Box>
+            <Stack direction="row" spacing={1} alignItems="center">
+              <Typography>Supporter</Typography>
+              <Switch onChange={handleChange} checked={isCreator} />
+              <Typography> Creator</Typography>
+            </Stack>
+          </Box>
+
           <Box sx={{ flexGrow: 1 }} />
           <Box>
             {/*
