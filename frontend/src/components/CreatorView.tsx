@@ -25,6 +25,7 @@ import {
   update,
   onValue,
 } from "firebase/database";
+import { CheckBox } from "@mui/icons-material";
 
 const baseServer = import.meta.env.VITE_NETWORK_API;
 
@@ -196,68 +197,67 @@ export function CreatorView(props: creatorViewProps) {
 
   return (
     <div className="App">
-      <Box
-        ml={"60px"}
-        display="flex"
-        justifyContent="flex-center"
-        alignItems="flex-center"
+      <Box width={"50%"}
+        margin={"auto"}
+        paddingTop={"20px"}
+        paddingBottom={"20px"}
       >
-        <Stack direction="row" spacing={1} alignItems="center">
+        <Stack justifyContent={'center'} direction="row" spacing={1} alignItems="center">
           <Typography>Giveaway Asset</Typography>
           <Switch onChange={handleChange} checked={isMintAsset} />
           <Typography> Mint Asset</Typography>
         </Stack>
       </Box>
-      <Grid>
-        <Grid item lg>
-          {isMintAsset ? (
-            <Box sx={{ mr: "150px" }}>
-              <NftForm algodClient={algodClient} creator={address} />
-            </Box>
-          ) : assetArray ? (
-            <>
-              <FormControl fullWidth>
-                <InputLabel id="demo-simple-select-label">AssetId</InputLabel>
-                <Select
-                  label="AssetId"
-                  onChange={handleSelect}
-                  value={selectedAsset}
-                >
-                  {assetArray.map((asset) =>
-                    asset.donated ? (
-                      <MenuItem
-                        disabled
-                        key={asset.assetId}
-                        value={asset.assetId}
-                      >
-                        {asset.assetId}
-                      </MenuItem>
-                    ) : (
-                      <MenuItem key={asset.assetId} value={asset.assetId}>
-                        {asset.assetId}
-                      </MenuItem>
-                    )
-                  )}
-                </Select>
-              </FormControl>
-            </>
-          ) : (
-            "You do not have any Assets to give away! Head over to  the Mint asset page to start the process!"
-          )}
+      {isMintAsset ? (
+        <Box width={"50%"} margin={"auto"}>
+          <NftForm algodClient={algodClient} creator={address} />
+        </Box>
+      ) : assetArray ? (
+        <>
+          <Box width={"50%"}
+            margin={"auto"}>
+            <Typography paddingBottom={"10px"} align="center" variant="h5" >Choose the NFT you want to giveaway</Typography>
+            <FormControl fullWidth>
+              <InputLabel id="demo-simple-select-label">AssetId</InputLabel>
+              <Select
+                label="AssetId"
+                onChange={handleSelect}
+                value={selectedAsset}
+              >
+                {assetArray.map((asset) =>
+                  asset.donated ? (
+                    <MenuItem
+                      disabled
+                      key={asset.assetId}
+                      value={asset.assetId}
+                    >
+                      {asset.assetId}
+                    </MenuItem>
+                  ) : (
+                    <MenuItem key={asset.assetId} value={asset.assetId}>
+                      {asset.assetId}
+                    </MenuItem>
+                  )
+                )}
+              </Select>
+            </FormControl>
+          </Box>
+        </>
+      ) : (
+        "You do not have any Assets to give away! Head over to  the Mint asset page to start the process!"
+      )}
 
-          {optedInArray.length ? (
-            <LoadingButton
-              variant="contained"
-              loading={loading}
-              onClick={pickWinner}
-            >
-              Pick winner and transfer!
-            </LoadingButton>
-          ) : (
-            ""
-          )}
-        </Grid>
-      </Grid>
+      {optedInArray.length ? (
+        <LoadingButton
+          variant="contained"
+          loading={loading}
+          onClick={pickWinner}
+        >
+          Pick winner and transfer!
+        </LoadingButton>
+      ) : (
+        ""
+      )}
     </div >
   );
 }

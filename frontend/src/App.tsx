@@ -289,7 +289,7 @@ export default function App() {
           </Box>
           <Box>
             <Typography variant="h5" component="h6">
-              NFT Lotto
+              Algorand Airdrop
             </Typography>
           </Box>
           <Box sx={{ flexGrow: 1 }} />
@@ -316,19 +316,7 @@ export default function App() {
           </Box>
         </Toolbar>
       </AppBar>
-      <Grid
-        container
-        direction="column"
-        alignItems="center"
-        justifyContent="space-around"
-        spacing={6}
-        margin="10px"
-        color="secondary"
-      >
-        <Grid item lg>
-          <Box>{action}</Box>
-        </Grid>
-      </Grid>
-    </div>
+      <Box>{action}</Box>
+    </div >
   );
 }

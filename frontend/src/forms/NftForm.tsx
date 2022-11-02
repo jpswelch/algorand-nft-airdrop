@@ -144,6 +144,7 @@ export const NftForm = (props: NftFormProps) => {
         color="secondary"
         sx={{ backgroundColor: 'secondary.main', borderRadius: "30px", padding: "10px", }}
       >
+        <Typography variant="h4" padding={"10px"}>Build your NFT!</Typography>
         <FormControl margin={'normal'} >
           <TextField
             id="title"
