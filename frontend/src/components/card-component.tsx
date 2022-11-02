@@ -1,6 +1,6 @@
 import { Component, useState } from 'react';
 import './card.styles.css';
-import { Button } from '@mui/material';
+import { Button, Box } from '@mui/material';
 import { optInToAsset } from '../actions/SupporterOptInActions';
 import { LoadingButton } from '@mui/lab';
 export default function Card(props) {
@@ -19,7 +19,14 @@ export default function Card(props) {
   }
   return (
     <div className="card-container" key={index}>
-      <img key={index} alt={`asset ${name}`} src={`${image}`} />
+      <Box
+        component="img"
+        sx={{
+          height: 110,
+        }}
+        key={index} alt={`asset ${name}`} src={`${image}`}
+      />
+      {/* //<img key={index} alt={`asset ${name}`} src={`${image}`} /> */}
       <h2>{name}</h2>
       <LoadingButton loading={loading} variant="contained" onClick={optIn}>Opt In</LoadingButton>
     </div>
