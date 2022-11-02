@@ -109,10 +109,12 @@ export function SupporterView(props: supporterViewProps) {
 
 
   return (
-    <div className="App">
-      <Typography sx={{ mr: "100px", paddingBottom: "20px" }} variant="h3" component="h3" align='center'>NFTs up for giveaway!</Typography>
+    <div>
+      <Typography sx={{ mr: "100px", paddingBottom: "20px", paddingTop: "20px" }} variant="h3" component="h3" align='center'>NFTs up for giveaway!</Typography>
       <Typography sx={{ mr: "100px", paddingBottom: "20px" }} variant="h5" component="h5" align='center'>Opt in before a winner is randomly picked and the NFT is airdropped!</Typography>
-      <Grid sx={{ mr: "130px" }}>
+      <Grid sx={{
+
+      }}>
         {
           availableAssets.length && !loading ? <Box>
             <CardList assets={availableAssets} supporter={supporter} algodClient={algodClient} />

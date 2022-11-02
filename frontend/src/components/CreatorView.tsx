@@ -248,13 +248,16 @@ export function CreatorView(props: creatorViewProps) {
       )}
 
       {optedInArray.length ? (
-        <LoadingButton
-          variant="contained"
-          loading={loading}
-          onClick={pickWinner}
+        <Box textAlign={"center"}
         >
-          Pick winner and transfer!
-        </LoadingButton>
+          <LoadingButton
+            variant="contained"
+            loading={loading}
+            onClick={pickWinner}
+          >
+            Pick winner and transfer!
+          </LoadingButton>
+        </Box>
       ) : (
         ""
       )}

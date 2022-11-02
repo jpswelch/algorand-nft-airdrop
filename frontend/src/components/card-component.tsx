@@ -21,9 +21,6 @@ export default function Card(props) {
     <div className="card-container" key={index}>
       <Box
         component="img"
-        sx={{
-          height: 110,
-        }}
         key={index} alt={`asset ${name}`} src={`${image}`}
       />
       {/* //<img key={index} alt={`asset ${name}`} src={`${image}`} /> */}
