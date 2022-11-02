@@ -21,7 +21,7 @@ import {
   Switch,
   Toolbar,
   Typography,
-  Avatar,
+  Divider,
 } from '@mui/material';
 import { LoadingButton } from '@mui/lab';
 import { SettleForm } from './forms/SettleForm';
@@ -38,6 +38,7 @@ import {
 } from 'firebase/database';
 import { async } from '@firebase/util';
 import CardList from './components/card-list-component';
+import { ResetTvOutlined } from '@mui/icons-material';
 
 // AnonClient can still allow reads for an app but no transactions
 // can be signed
@@ -51,11 +52,11 @@ const AnonClient = (client: algosdk.Algodv2, appId: number): RandomPicker => {
 };
 
 const token = {
-  'X-API-Key': import.meta.env.VITE_NETWORK_API,
+  'X-API-Key': import.meta.env.VITE_NETWORK_API_KEY,
 };
 const indexerClient = new algosdk.Indexer(
   token,
-  import.meta.env.VITE_NETWORK_API_SERVER,
+  import.meta.env.VITE_NETWORK_INDEXER,
   ''
 );
 
@@ -103,7 +104,6 @@ export default function App() {
   );
 
   // get list of assets
-  /*  
   type AssetObj = {
     name: string;
     index: number;
@@ -125,44 +125,43 @@ export default function App() {
         });
     });
   };
-
-
   useEffect(() => {
     const db = getDatabase();
     const airdropRef = ref(db, 'airdrop');
     onValue(airdropRef, (snapshot: any) => {
-      const data = snapshot.val();
-      console.log('database listing:');
+      const datarec = snapshot.val();
       let assetArray: any = [];
       let res_image: string = '';
       let url: string = '';
-      for (let key in data) {
-        getAsset(data[key].assetId).then((result: any) => {
-          // console.log(result);
-          console.log('https://gateway.ipfs.io/ipfs/' + result.params.url);
+      let d: string = '';
+      // let assetId: string = '';
+      for (let key in datarec) {
+        let assetId: string = datarec[key].assetId;
+        // datarec[key].assetId
+        getAsset(assetId).then((result: any) => {
           url = 'https://gateway.ipfs.io/ipfs/' + result.params.url;
-          // fetch(url)
-          //   .then((response) => response.json())
-          //   .then((result) => {
-          //     res_image = result.image;
-          //   })
-          //   .catch((error) => {
-          //     console.error('Error', error);
-          //   });
-
-          assetArray.push({
-            index: data[key].assetId,
-            name: result.params['unit-name'],
-            url: result.params.url,
-            image: res_image,
-          });
+          // console.log(url);
+          fetch(url)
+            .then((response) => response.text())
+            .then((data) => {
+              res_image = JSON.parse(data).image;
+              console.log(JSON.parse(data).image);
+              assetArray.push({
+                index: assetId,
+                name: result.params['unit-name'],
+                url: result.params.url,
+                image: res_image,
+              });
+              console.log(assetArray);
+              setAvailableAssets(assetArray);
+            })
+            .catch((error) => {
+              console.error('Error', error);
+            });
         });
       }
-      // console.log(assetArray);
-      setAvailableAssets(assetArray);
     });
   }, []);
-  */
 
   // If the account info, client, or app id change
   // update our app client
@@ -373,11 +372,17 @@ export default function App() {
         color="secondary"
       >
         <Grid item lg>
+          <Divider
+            variant="fullWidth"
+            sx={{ border: 2, borderRadius: 2, borderColor: 'primary.main' }}
+          />
+        </Grid>
+        <Grid item lg>
           <Box>{action}</Box>
           <Box></Box>
-          {/* <Box>
+          <Box>
             <CardList assets={availableAssets} />
-          </Box> */}
+          </Box>
         </Grid>
         {/* <Grid item lg>
           <LoadingButton color="warning" loading={loading} onClick={closeOut}>

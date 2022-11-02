@@ -1,13 +1,14 @@
 import { Component } from 'react';
-// import './card.styles.css';
-
+import './card.styles.css';
+import { Button } from '@mui/material';
 class Card extends Component {
   render() {
-    const { index, name, url } = this.props.asset;
+    const { index, name, image } = this.props.asset;
     return (
       <div className="card-container" key={index}>
-        <img alt={`asset ${name}`} src={`${image}`} />
+        <img key={index} alt={`asset ${name}`} src={`${image}`} />
         <h2>{name}</h2>
+        <Button variant="contained">Opt In</Button>
       </div>
     );
   }
