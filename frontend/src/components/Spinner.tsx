@@ -1,10 +1,8 @@
 import { Wheel } from "react-custom-roulette";
 import algosdk from "algosdk";
 import { useState, useEffect } from "react";
-import {
-  SessionWalletData,
-} from "beaker-ts/lib/web";
 import JSConfetti from 'js-confetti'
+import emoji from "../assets/emoji.jpg"
 import { transferAsset } from "../actions/NftTransferActions"
 import {
   getDatabase,

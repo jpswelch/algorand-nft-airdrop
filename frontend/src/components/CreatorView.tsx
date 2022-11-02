@@ -11,6 +11,7 @@ import {
   InputLabel,
   Select,
   MenuItem,
+  Box
 } from "@mui/material";
 import { LoadingButton } from "@mui/lab";
 import { NftForm } from "../forms/NftForm";
@@ -195,16 +196,24 @@ export function CreatorView(props: creatorViewProps) {
 
   return (
     <div className="App">
+      <Box
+        ml={"60px"}
+        display="flex"
+        justifyContent="flex-center"
+        alignItems="flex-center"
+      >
+        <Stack direction="row" spacing={1} alignItems="center">
+          <Typography>Giveaway Asset</Typography>
+          <Switch onChange={handleChange} checked={isMintAsset} />
+          <Typography> Mint Asset</Typography>
+        </Stack>
+      </Box>
       <Grid>
         <Grid item lg>
-          <Stack direction="row" spacing={1} alignItems="center">
-            <Typography>Giveaway Asset</Typography>
-            <Switch onChange={handleChange} checked={isMintAsset} />
-            <Typography> Mint Asset</Typography>
-          </Stack>
-
           {isMintAsset ? (
-            <NftForm algodClient={algodClient} creator={address} />
+            <Box sx={{ mr: "150px" }}>
+              <NftForm algodClient={algodClient} creator={address} />
+            </Box>
           ) : assetArray ? (
             <>
               <FormControl fullWidth>
@@ -249,6 +258,6 @@ export function CreatorView(props: creatorViewProps) {
           )}
         </Grid>
       </Grid>
-    </div>
+    </div >
   );
 }

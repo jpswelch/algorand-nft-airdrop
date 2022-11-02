@@ -103,7 +103,7 @@ export default function App() {
   );
 
   // get list of assets
-  /*  
+  /*
   type AssetObj = {
     name: string;
     index: number;
@@ -209,7 +209,7 @@ export default function App() {
       const acctState = await appClient.getAccountState(account());
       if ('commitment_round' in acctState)
         return acctState['commitment_round'] as number;
-    } catch (err) {}
+    } catch (err) { }
     return 0;
   }
 
