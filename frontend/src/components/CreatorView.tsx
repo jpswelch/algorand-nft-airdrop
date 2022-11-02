@@ -255,7 +255,7 @@ export function CreatorView(props: creatorViewProps) {
             loading={loading}
             onClick={pickWinner}
           >
-            Pick winner and transfer!
+            Get random winner and transfer!
           </LoadingButton>
         </Box>
       ) : (
