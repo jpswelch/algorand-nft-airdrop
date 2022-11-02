@@ -114,7 +114,7 @@ export function Spinner(props: SpinnerProps) {
           <Box sx={{ mt: 2 }}>
             <TwitterShareButton
               url={`https://goalseeker.purestake.io/algorand/testnet/asset/${assetId}`}
-              options={{ text: `I just airdropped an exclusive NFT to one of my best supporters ${eligibleWinners[winner].address}`, via: 'AlgorandAirdrop' }} />
+              options={{ text: `I just airdropped an exclusive NFT to one of my best supporters ${eligibleWinners[winner].address.substring(0, 4)} ... ${eligibleWinners[winner].address.substring(54, 58)}`, via: 'AlgorandAirdrop' }} />
           </Box>
           <Box
             m={1}

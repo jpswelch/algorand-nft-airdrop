@@ -11,6 +11,7 @@ import {
   Typography,
   TextField,
   TextareaAutosize,
+  Modal,
 } from '@mui/material';
 
 import { makeStyles } from '@mui/styles'
@@ -27,6 +28,7 @@ import {
   onValue,
 } from 'firebase/database';
 import { ClassNames } from '@emotion/react';
+import { TwitterShareButton } from 'react-twitter-embed';
 
 function writeData(
   creator: string,
@@ -98,13 +100,25 @@ const useStyles = makeStyles({
   input: {
     color: "white"
   }
-});
+}); const style = {
+  position: 'absolute' as 'absolute',
+  top: '50%',
+  left: '50%',
+  transform: 'translate(-50%, -50%)',
+  width: 400,
+  bgcolor: 'background.paper',
+  border: '2px solid #000',
+  boxShadow: 24,
+  p: 4,
+};
+
 
 export const NftForm = (props: NftFormProps) => {
   const [photo, setPhotoData] = useState<any>();
   const [title, setTitle] = useState<string>('');
   const [description, setDescription] = useState<string>('');
   const classes = useStyles();
+  const [assetId, setAssetId] = useState<string>("");
 
   useEffect(() => {
     // initialize firebase
@@ -123,8 +137,9 @@ export const NftForm = (props: NftFormProps) => {
     );
     if (assetId) {
       console.log('Minting is complete');
-      alert('Minting is complete!');
+      setAssetId(assetId)
       writeData(props.creator, assetId, false, '');
+      handleOpen()
     } else {
       alert('Minting failed!');
     }
@@ -132,6 +147,10 @@ export const NftForm = (props: NftFormProps) => {
   const inputProps = {
     color: "white",
   };
+
+  const [open, setOpen] = useState(true);
+  const handleOpen = () => setOpen(true);
+  const handleClose = () => { setOpen(false); setAssetId("") };
 
   return (
     <>
@@ -185,6 +204,35 @@ export const NftForm = (props: NftFormProps) => {
           Submit
         </Button>
       </Box>
+
+      <Modal
+        open={open}
+        onClose={handleClose}
+        aria-labelledby="modal-modal-title"
+        aria-describedby="modal-modal-description"
+      >
+        <Box sx={style}>
+          <Typography id="modal-modal-title" variant="h6" component="h2">
+            Successfully Minted!
+          </Typography>
+          <Typography id="modal-modal-description" sx={{ mt: 2 }}>
+          </Typography>
+          <Box sx={{ mt: 2 }}>
+            <TwitterShareButton
+              url={`https://goalseeker.purestake.io/algorand/testnet/asset/${assetId}`}
+              options={{ text: `I just minted an NFT that I will be randomly Airdropping to one lucky supporter on AlgorandAirdrop! Head over and to opt in to be eligible! `, via: 'AlgorandAirdrop' }} />
+          </Box>
+          <Box
+            m={1}
+            //margin
+            display="flex"
+            justifyContent="flex-end"
+            alignItems="flex-end"
+          >
+            <Button onClick={handleClose}>Close</Button>
+          </Box>
+        </Box>
+      </Modal>
     </>
   );
 };

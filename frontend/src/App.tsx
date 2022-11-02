@@ -69,7 +69,7 @@ export default function App() {
     algosdk.getApplicationAddress(appId)
   );
 
-  const [isCreator, setIsCreator] = useState<boolean>(true);
+  const [isCreator, setIsCreator] = useState<boolean>(false);
 
   const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     console.log(event.target);
@@ -240,8 +240,6 @@ export default function App() {
     <Button variant="outlined" onClick={createApp}>
       Create App
     </Button>
-  ) : !isConnected ? (
-    <Typography variant="h3">Create an NFT Lotto. Win an NFT.</Typography>
   ) : !round ? (
     <>
       {isCreator ? (
