@@ -326,12 +326,6 @@ export default function App() {
         color="secondary"
       >
         <Grid item lg>
-          <Divider
-            variant="fullWidth"
-            sx={{ border: 2, borderRadius: 2, borderColor: 'primary.main' }}
-          />
-        </Grid>
-        <Grid item lg>
           <Box>{action}</Box>
         </Grid>
       </Grid>

@@ -5,6 +5,7 @@ import {
   Grid,
   Box,
   Button,
+  Typography
 } from '@mui/material';
 import {
   getDatabase,
@@ -84,12 +85,13 @@ export function SupporterView(props: supporterViewProps) {
             .then((data) => {
               res_image = JSON.parse(data).image;
               console.log(JSON.parse(data).image);
-              assetArray.push({
+              let a = {
                 index: assetId,
                 name: result.params['unit-name'],
                 url: result.params.url,
                 image: res_image,
-              });
+              };
+              assetArray = [...assetArray, a]
               // console.log(assetArray);
               setAvailableAssets(assetArray);
             })
@@ -98,7 +100,7 @@ export function SupporterView(props: supporterViewProps) {
             });
         });
       }
-
+      console.log("dev", assetArray)
       setLoading(false);
       // updateStarCount(postElement, data);
     });
@@ -108,14 +110,14 @@ export function SupporterView(props: supporterViewProps) {
 
   return (
     <div className="App">
-      <Grid>
-        <Grid item lg>
-          {
-            availableAssets && !loading ? <Box>
-              <CardList assets={availableAssets} supporter={supporter} algodClient={algodClient} />
-            </Box> : ""
-          }
-        </Grid>
+      <Typography sx={{ mr: "100px", paddingBottom: "20px" }} variant="h3" component="h3" align='center'>NFTs up for giveaway!</Typography>
+      <Typography sx={{ mr: "100px", paddingBottom: "20px" }} variant="h5" component="h5" align='center'>Opt in before a winner is randomly picked and the NFT is airdropped!</Typography>
+      <Grid sx={{ mr: "130px" }}>
+        {
+          availableAssets.length && !loading ? <Box>
+            <CardList assets={availableAssets} supporter={supporter} algodClient={algodClient} />
+          </Box> : ""
+        }
       </Grid>
     </div>
   );
