@@ -293,11 +293,11 @@ export default function App() {
             </Typography>
           </Box>
           <Box sx={{ flexGrow: 1 }} />
-          <Box>
+          <Box sx={{ borderRadius: "30px", backgroundColor: "secondary.light", padding: "10px" }}>
             <Stack direction="row" spacing={1} alignItems="center">
-              <Typography>Supporter</Typography>
+              <Typography color={"primary.main"}>Supporter</Typography>
               <Switch onChange={handleChange} checked={isCreator} />
-              <Typography> Creator</Typography>
+              <Typography color={"primary.main"}> Creator</Typography>
             </Stack>
           </Box>
 
