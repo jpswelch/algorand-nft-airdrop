@@ -1,9 +1,9 @@
-import * as React from "react";
+import * as React from 'react';
 import {
   SessionWalletData,
   ImplementedWallets,
   SessionWalletManager,
-} from "beaker-ts/lib/web";
+} from 'beaker-ts/lib/web';
 import {
   Select,
   Button,
@@ -15,11 +15,12 @@ import {
   MenuItem,
   ButtonGroup,
   IconButton,
-} from "@mui/material";
+  Grid,
+} from '@mui/material';
 
-import LoadingButton from "@mui/lab/LoadingButton";
-import CloseIcon from "@mui/icons-material/Close";
-import { WalletName } from "beaker-ts/lib/web/session_wallet";
+import LoadingButton from '@mui/lab/LoadingButton';
+import CloseIcon from '@mui/icons-material/Close';
+import { WalletName } from 'beaker-ts/lib/web/session_wallet';
 
 type WalletSelectorProps = {
   network: string;
@@ -66,18 +67,17 @@ export default function WalletSelector(props: WalletSelectorProps) {
 
   async function handleSelectedWallet(choice: string) {
     SessionWalletManager.setWalletPreference(network, choice as WalletName);
-    setLoading(true)
+    setLoading(true);
     await SessionWalletManager.connect(network);
     setAccountSettings(SessionWalletManager.read(network));
-    setLoading(false)
+    setLoading(false);
   }
-  console.log(accountSettings?.data?.acctList?.length)
+  console.log(accountSettings?.data?.acctList?.length);
 
   const display = !accountSettings.data.acctList.length ? (
     <LoadingButton
       variant="contained"
       loading={loading}
-      color="secondary"
       onClick={() => {
         setSelectorOpen(!selectorOpen);
       }}
@@ -137,17 +137,21 @@ function WalletSelectorDialog(props: WalletSelectorDialogProps) {
   for (const [k, v] of Object.entries(ImplementedWallets)) {
     const imgSrc = v.img(false);
     const imgContent =
-      imgSrc === "" ? (
+      imgSrc === '' ? (
         <div></div>
       ) : (
-        <img alt="wallet-branding" style={{width:"2em", margin:"0.5em"}} src={imgSrc} />
+        <img
+          alt="wallet-branding"
+          style={{ width: '2em', margin: '0.5em' }}
+          src={imgSrc}
+        />
       );
 
     walletOptions.push(
-      <li key={k} style={{margin:"1em"}}>
+      <li key={k} style={{ margin: '1em' }}>
         <Button id={k} variant="outlined" onClick={handleWalletSelected}>
           {imgContent}
-          <Box sx={{display:"flex", alignItems:"center"}}>
+          <Box sx={{ display: 'flex', alignItems: 'center' }}>
             <h5>{v.displayName()}</h5>
           </Box>
         </Button>
@@ -156,16 +160,16 @@ function WalletSelectorDialog(props: WalletSelectorDialogProps) {
   }
 
   return (
-    <div>
+    <Grid>
       <Dialog open={props.open} onClose={props.onClose}>
         <DialogTitle> Select Wallet </DialogTitle>
         <DialogContent>
-          <ul style={{listStyle:"none"}} >{walletOptions}</ul>
+          <ul style={{ listStyle: 'none' }}>{walletOptions}</ul>
         </DialogContent>
         <DialogActions>
           <Button onClick={props.onClose}> cancel </Button>
         </DialogActions>
       </Dialog>
-    </div>
+    </Grid>
   );
 }

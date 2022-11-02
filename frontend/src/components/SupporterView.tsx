@@ -1,6 +1,6 @@
 // @ts-nocheck
-import algosdk from "algosdk";
-import { useState, useEffect } from "react";
+import algosdk from 'algosdk';
+import { useState, useEffect } from 'react';
 import {
   Grid,
   FormControl,
@@ -8,10 +8,10 @@ import {
   Select,
   MenuItem,
   Button,
-} from "@mui/material";
-import { LoadingButton } from "@mui/lab";
-import { optInToAsset } from "../actions/SupporterOptInActions";
-import firebase from "../firebase";
+} from '@mui/material';
+import { LoadingButton } from '@mui/lab';
+import { optInToAsset } from '../actions/SupporterOptInActions';
+import firebase from '../firebase';
 import {
   getDatabase,
   ref,
@@ -20,8 +20,8 @@ import {
   push,
   update,
   onValue,
-} from "firebase/database";
-import { display } from "@mui/system";
+} from 'firebase/database';
+import { display } from '@mui/system';
 
 type supporterViewProps = {
   algodClient: algosdk.Algodv2;
@@ -32,7 +32,7 @@ export function SupporterView(props: supporterViewProps) {
   const { algodClient, accountSettings } = props;
   const [loading, setLoading] = useState<boolean>(false);
   const [assetArray, setAssetArray] = useState<Object[]>([]);
-  const [selectedAsset, setSelectedAsset] = useState<string>("");
+  const [selectedAsset, setSelectedAsset] = useState<string>('');
   const [optedIn, setOptedIn] = useState<boolean>(false);
   let supporter = accountSettings?.data?.acctList[0];
 
@@ -49,7 +49,7 @@ export function SupporterView(props: supporterViewProps) {
 
   useEffect(() => {
     const db = getDatabase();
-    const airdropRef = ref(db, "airdrop");
+    const airdropRef = ref(db, 'airdrop');
     onValue(airdropRef, (snapshot: any) => {
       const data = snapshot.val();
 
@@ -94,7 +94,7 @@ export function SupporterView(props: supporterViewProps) {
               </Select>
             </FormControl>
           ) : (
-            ""
+            ''
           )}
           {optedIn ? (
             <Button> Opted In!</Button>

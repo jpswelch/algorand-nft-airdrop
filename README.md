@@ -1,5 +1,6 @@
 # Algorand Random NFT AirDrop
 
+Purpose:  
 Randomly Airdrop an NFT to someone on the Algorand blockchain
 
 [Gitcoin Hackathon: Algorand Greenhouse Hack 2](https://gitcoin.co/hackathon/greenhouse?org=algorandfoundation)  
