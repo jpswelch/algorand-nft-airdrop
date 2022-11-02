@@ -322,6 +322,7 @@ export default function App() {
             assetId={assetId}
             assetKey={assetKey}
           />
+          <Button onClick={() => setround(0)}>Reset</Button>
         </>
       ) : (
         <SettleForm round={round} settle={settle} algodClient={algodClient} />
