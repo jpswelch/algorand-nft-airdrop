@@ -81,7 +81,7 @@ export function Spinner(props: SpinnerProps) {
   }
 
   useEffect(() => {
-    if (winner) {
+    if (winner === 0 || winner) {
       setMustSpin(true);
     } else {
       setMustSpin(false);
@@ -90,13 +90,14 @@ export function Spinner(props: SpinnerProps) {
 
 
   return (
-    <><Wheel
-      mustStartSpinning={mustSpin}
-      prizeNumber={winner}
-      data={data}
-      backgroundColors={["#0c4160", "#738fa7"]}
-      textColors={["#c3ceda"]}
-      onStopSpinning={endSpinner} />
+    <>
+      <Wheel
+        mustStartSpinning={mustSpin}
+        prizeNumber={winner}
+        data={data}
+        backgroundColors={["#0c4160", "#738fa7"]}
+        textColors={["#c3ceda"]}
+        onStopSpinning={endSpinner} />
 
       <Modal
         open={open}

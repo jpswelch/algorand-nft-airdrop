@@ -258,7 +258,7 @@ export default function App() {
     </>
   ) : (
     <>
-      {winner ? (
+      {winner === 0 || winner ? (
         <>
           <Spinner
             algodClient={algodClient}
@@ -268,7 +268,7 @@ export default function App() {
             assetId={assetId}
             assetKey={assetKey}
           />
-          <Button onClick={() => setround(0)}>Reset</Button>
+          <Button onClick={(e) => { setround(0); setWinner(null) }}>Reset</Button>
         </>
       ) : (
         <SettleForm round={round} settle={settle} algodClient={algodClient} />
@@ -276,6 +276,7 @@ export default function App() {
     </>
   );
   // The app ui
+  console.log(winner)
   return (
     <div className="App">
       <AppBar position="static" color="secondary">
