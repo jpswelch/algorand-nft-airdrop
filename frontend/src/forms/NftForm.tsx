@@ -1,15 +1,15 @@
-import React, { useState, useEffect } from "react";
-import algosdk from "algosdk";
+import React, { useState, useEffect } from 'react';
+import algosdk from 'algosdk';
 import {
   Button,
   FormControl,
   InputLabel,
   Input,
   FormHelperText,
-} from "@mui/material";
+} from '@mui/material';
 
-import { airdropNFT } from "../actions/NftCreateActions";
-import firebase from "../firebase";
+import { airdropNFT } from '../actions/NftCreateActions';
+import firebase from '../firebase';
 import {
   getDatabase,
   ref,
@@ -18,12 +18,12 @@ import {
   push,
   update,
   onValue,
-} from "firebase/database";
+} from 'firebase/database';
 
 function writeData(creator: string, assetId: string, donated: boolean) {
   const db = getDatabase();
 
-  let newKey: any = push(child(ref(db), "airdrop")).key;
+  let newKey: any = push(child(ref(db), 'airdrop')).key;
 
   const data: {
     creator: string;
@@ -43,13 +43,13 @@ function writeData(creator: string, assetId: string, donated: boolean) {
     };
   } = {};
 
-  updates["/airdrop/" + newKey] = data;
+  updates['/airdrop/' + newKey] = data;
   update(ref(db), updates);
 }
 
 function displayData() {
   const db = getDatabase();
-  const airdropRef = ref(db, "airdrop");
+  const airdropRef = ref(db, 'airdrop');
   onValue(airdropRef, (snapshot: any) => {
     const data = snapshot.val();
     console.log(data);
@@ -62,7 +62,7 @@ function updateData(key: string, donated: boolean) {
   const updates: {
     [key: string]: boolean;
   } = {};
-  updates["/airdrop/" + key + "/donated"] = donated;
+  updates['/airdrop/' + key + '/donated'] = donated;
   update(ref(db), updates);
 }
 
@@ -74,8 +74,8 @@ export type NftFormProps = {
 
 export const NftForm = (props: NftFormProps) => {
   const [photo, setPhotoData] = useState<any>();
-  const [title, setTitle] = useState<string>("");
-  const [description, setDescription] = useState<string>("");
+  const [title, setTitle] = useState<string>('');
+  const [description, setDescription] = useState<string>('');
 
   useEffect(() => {
     // initialize firebase
@@ -93,11 +93,11 @@ export const NftForm = (props: NftFormProps) => {
       props.winner
     );
     if (assetId) {
-      console.log("Minting is complete");
-      alert("Minting is complete!");
+      console.log('Minting is complete');
+      alert('Minting is complete!');
       writeData(props.creator, assetId, false);
     } else {
-      alert("Minting failed!");
+      alert('Minting failed!');
     }
   };
   return (
@@ -129,7 +129,9 @@ export const NftForm = (props: NftFormProps) => {
       </FormControl>
 
       <div>
-        <Button onClick={handleSubmit}>Submit</Button>
+        <Button onClick={handleSubmit} color="secondary">
+          Submit
+        </Button>
       </div>
     </div>
   );
