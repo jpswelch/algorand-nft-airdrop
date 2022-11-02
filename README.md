@@ -1,5 +1,7 @@
 # Algorand Random NFT AirDrop
 
+[Here is the document explaining how the site works](https://docs.google.com/document/d/1ePmpKFtUXMJOFiTOLFeusej1JIzPodi9ONOz8i_C76k/edit?usp=sharing)
+
 Purpose:  
 Randomly Airdrop an NFT to someone on the Algorand blockchain
 
